@@ -1,5 +1,9 @@
 
-# **Global Solutions**
+<p align="center">
+  <img src="https://github.com/shellder-connect/.github/blob/151c75b13fb239c1749b3a6efa64ed6d57608a5b/logo-readme.png" width="300"/>
+</p>
+
+
 
 ## 📌 **Índice**
 1. [Sobre o Projeto](#-sobre-o-projeto)
