@@ -73,14 +73,6 @@ CREATE TABLE Pessoa_Atendida (
     CONSTRAINT fk_pessoa_atendida_usuario FOREIGN KEY (id_pessoa_atendida) REFERENCES Usuario(id_usuario)
 );
 
--- TABELA ASSOCIATIVA
-CREATE TABLE Pessoa_Atendida_Categoria (
-    id_pessoa_atendida NUMBER NOT NULL,
-    id_categoria NUMBER NOT NULL,
-    PRIMARY KEY (id_pessoa_atendida, id_categoria),
-    FOREIGN KEY (id_pessoa_atendida) REFERENCES Pessoa_Atendida(id_pessoa_atendida),
-    FOREIGN KEY (id_categoria) REFERENCES Categoria(id_categoria)
-);
 
 -- DISTRIBUICAO
 CREATE TABLE Distribuicao (
@@ -137,8 +129,8 @@ CREATE TABLE Feedback (
     nota            NUMBER,
     comentario      VARCHAR2(200),
     data_feedback   TIMESTAMP,
-    id_avaliado     NUMBER NOT NULL, -- quem será avaliado
-    id_usuario      NUMBER NOT NULL,
+    id_avaliado     NUMBER NOT NULL, -- Quem será avaliado
+    id_usuario      NUMBER NOT NULL, -- Quem esta avaliando
     CONSTRAINT fk_feedback_usuario FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
     CONSTRAINT fk_feedback_avaliado FOREIGN KEY (id_avaliado) REFERENCES Usuario(id_usuario)
 );
@@ -156,10 +148,12 @@ CREATE TABLE ProfissionalSaude (
 -- MURAL EMERGENCIA
 CREATE TABLE Mural_Emergencia (
     id_mural                    NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_usuario                  NUMBER NOT NULL,
     mensagem                    VARCHAR2(255),
     id_tipo_mural_emergencia    NUMBER NOT NULL, -- 0 - alerta, 1 - aviso, 2 - informação
     id_status_apoio             NUMBER NOT NULL, -- 0 - não apoiado, 1 - apoiado
     data_hora                   TIMESTAMP,
+    CONSTRAINT fk_usuario_mural FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
     CONSTRAINT fk_mural_tipo    FOREIGN KEY (id_tipo_mural_emergencia) REFERENCES Tipo_Mural_Emergencia(id_tipo_mural_emergencia),
     CONSTRAINT fk_mural_status  FOREIGN KEY (id_status_apoio) REFERENCES Status_Apoio(id_status_apoio)
 );
