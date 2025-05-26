@@ -161,9 +161,10 @@ CREATE TABLE Feedbacks (
     nota            NUMBER,
     comentario      VARCHAR2(200),
     data_feedback   TIMESTAMP,
-    id_avaliado     NUMBER,
+    id_avaliado     NUMBER NOT NULL,
     id_usuario      NUMBER NOT NULL,
-    CONSTRAINT fk_feedback_usuario FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
+    CONSTRAINT fk_feedback_usuario FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
+    CONSTRAINT fk_feedback_avaliado FOREIGN KEY (id_avaliado) REFERENCES Usuario(id_usuario)
 );
 
 -- PROFISSIONAL SAUDE
