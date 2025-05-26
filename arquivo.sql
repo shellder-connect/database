@@ -1,7 +1,7 @@
 
 -- USUARIO
 CREATE TABLE Usuario (
-    id_usuario          NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_usuario          INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     nome                VARCHAR2(100),
     username            VARCHAR2(100) UNIQUE NOT NULL,
     senha               VARCHAR2(15) NOT NULL,
@@ -18,19 +18,19 @@ CREATE TABLE Usuario (
 
 -- TIPO USUARIO
 CREATE TABLE Tipo_Usuario (
-    id_tipo_usuario     NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_tipo_usuario     INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     descricao           VARCHAR2(50) NOT NULL UNIQUE,   -- Ex: 'Admin', 'Voluntario', 'Profissional', 'Atendido'
 );
 
 -- STATUS USUARIO
 CREATE TABLE Status_Usuario (
-    id_status_usuario   NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_status_usuario   INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEYY,
     descricao           VARCHAR2(10) NOT NULL UNIQUE,   -- Ex: 'Ativo', 'Inativo'
 );
 
 -- ENDERECO
 CREATE TABLE Endereco (
-    id_endereco     NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_endereco     INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     rua             VARCHAR2(100),
     numero          NUMBER,
     bairro          VARCHAR2(100),
@@ -42,13 +42,13 @@ CREATE TABLE Endereco (
 
 -- CATEGORIA
 CREATE TABLE Categoria (
-    id_categoria    NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_categoria    INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     descricao       VARCHAR2(50) NOT NULL UNIQUE  -- exemplo: 'Roupa', 'Alimento', 'Medicamento'
 );
 
 -- ABRIGO
 CREATE TABLE Abrigo (
-    id_abrigo           NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_abrigo           INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     capacidade_total    NUMBER,
     ocupacao_atual      NUMBER,
     descricao           VARCHAR2(200),       
@@ -56,7 +56,7 @@ CREATE TABLE Abrigo (
 
 -- DOACAO
 CREATE TABLE Doacao (
-    id_doacao       NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_doacao       INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     id_abrigo       NUMBER NOT NULL,
     descricao       VARCHAR2(200),
     id_categoria    NUMBER NOT NULL,
@@ -76,7 +76,7 @@ CREATE TABLE Pessoa_Atendida (
 
 -- DISTRIBUICAO
 CREATE TABLE Distribuicao (
-    id_distribuicao         NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_distribuicao         INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     id_doacao               NUMBER NOT NULL,
     qtd_destinada           NUMBER,
     data_destinada          TIMESTAMP,
@@ -97,13 +97,13 @@ CREATE TABLE Voluntario (
 
 -- CATEGORIA VOLUNTARIO
 CREATE TABLE Categoria_Voluntario (
-    id_categoria_voluntario     NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_categoria_voluntario     INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     descricao                   VARCHAR2(100) NOT NULL UNIQUE,   -- Ex: 'Saúde', 'Educação', 'Assistência Social'
 );
 
 -- DISPONIBILIDADE DO VOLUNTARIO
 CREATE TABLE Disponibilidade (
-    id_disponibilidade  NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_disponibilidade  INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     descricao           VARCHAR2(50) NOT NULL UNIQUE  -- exemplo: 'Manhã', 'Tarde', 'Noite', 'Integral'
 );
 
@@ -119,20 +119,20 @@ CREATE TABLE EmpresaParceira (
 
 -- ESPECIALIDADE
 CREATE TABLE Especialidade (
-    id_especialidade    NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_especialidade    INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     descricao           VARCHAR2(100)
 );
 
 -- FEEDBACK
 CREATE TABLE Feedback (
-    id_feedback     NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_feedback     INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     nota            NUMBER,
     comentario      VARCHAR2(200),
     data_feedback   TIMESTAMP,
-    id_avaliado     NUMBER NOT NULL, -- Quem será avaliado
+    id_avaliado     NUMBER, -- Quem será avaliado
     id_usuario      NUMBER NOT NULL, -- Quem esta avaliando
     CONSTRAINT fk_feedback_usuario FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
-    CONSTRAINT fk_feedback_avaliado FOREIGN KEY (id_avaliado) REFERENCES Usuario(id_usuario)
+
 );
 
 -- PROFISSIONAL SAUDE
@@ -147,7 +147,7 @@ CREATE TABLE ProfissionalSaude (
 
 -- MURAL EMERGENCIA
 CREATE TABLE Mural_Emergencia (
-    id_mural                    NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_mural                    INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     id_usuario                  NUMBER NOT NULL,
     mensagem                    VARCHAR2(255),
     id_tipo_mural_emergencia    NUMBER NOT NULL, -- 0 - alerta, 1 - aviso, 2 - informação
@@ -160,25 +160,25 @@ CREATE TABLE Mural_Emergencia (
 
 -- TIPO MURAL EMERGENCIA
 CREATE TABLE Tipo_Mural_Emergencia (
-    id_tipo_mural_emergencia    NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_tipo_mural_emergencia    INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     descricao                   VARCHAR2(50) NOT NULL UNIQUE,  -- exemplo: 'Alerta', 'Aviso', 'Informação'
 );
 
 -- FORMA DE ATENDIMENTO
 CREATE TABLE Forma_Atendimento (
-    id_forma_atendimento    NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_forma_atendimento    INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     descricao               VARCHAR2(50) NOT NULL UNIQUE,  -- Presencial ou Remoto
 );
 
 -- STATUS DO MURAL
 CREATE TABLE Status_Apoio (
-    id_status_apoio      NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_status_apoio      INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     descricao            VARCHAR2(50) NOT NULL UNIQUE,  -- Apoiado ou Não Apoiado
 );
 
 -- REGISTRO EVENTO
 CREATE TABLE RegistroEvento (
-    id_registro_evento  NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_registro_evento  INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     id_tipo_evento      NUMBER NOT NULL,  
     descricao           VARCHAR2(255),
     data_hora           TIMESTAMP,
@@ -190,6 +190,6 @@ CREATE TABLE RegistroEvento (
 
 -- TIPO EVENTO
 CREATE TABLE TipoEvento (
-    id_tipo_evento  NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_tipo_evento  INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) NOT NULL PRIMARY KEY,
     descricao       VARCHAR2(255) -- 0 - doação, 1 - distribuição
 );
