@@ -82,8 +82,7 @@ CREATE TABLE T_Distribuicao (
     qtd_destinada       NUMBER,
     data_destinada      TIMESTAMP,
     id_pessoa_atendida  NUMBER NOT NULL,
-    CONSTRAINT fk_distribuicao_doacao FOREIGN KEY (id_doacao) REFERENCES T_Doacao(id_doacao),
-    CONSTRAINT fk_distribuicao_pessoa FOREIGN KEY (id_pessoa_atendida) REFERENCES T_Pessoa_Atendida(id_pessoa_atendida)
+    CONSTRAINT fk_distribuicao_doacao FOREIGN KEY (id_doacao) REFERENCES T_Doacao(id_doacao)
 );
 
 
