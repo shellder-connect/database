@@ -1,37 +1,15 @@
-
-<p align="center">
-  <img src="https://github.com/shellder-connect/.github/blob/151c75b13fb239c1749b3a6efa64ed6d57608a5b/logo-readme.png" width="300"/>
-</p>
-
 # 📘 Modelo Descritivo do Banco de Dados - Shellder Connect
 
-## Tabela `Usuario`
+## Tabela `Tipo_Usuario`
+📄 *Define os tipos de usuários do sistema, como administrador, voluntário, profissional da saúde e pessoa atendida. Essa tabela funciona como domínio para a classificação dos usuários cadastrados.*
 
-📄 *Armazena os dados principais dos usuários do sistema, incluindo todos os perfis (admin, voluntário, profissional, atendido).*
+- **id_tipo_usuario:** Identificador único do tipo de usuário
+- **descricao:** Descrição do tipo (ex: Admin, Voluntário, Profissional, Atendido)
 
-- **id**: Identificador único do usuário
-- **nome**: Nome completo do usuário
-- **username**: Nome de usuário utilizado para login
-- **senha**: Senha de acesso do usuário
-- **tipo_usuario**: Define o perfil do usuário (admin, voluntario, profissional, atendido)
-- **telefone**: Número de telefone para contato
-- **id_endereco**: Chave estrangeira para a tabela de endereço
-- **data_nascimento**: Data de nascimento do usuário
-- **documento**: Número de documento (CPF, RG, etc.)
-- **status**: Indica se o usuário está ativo (1) ou inativo (0)
-
-| Campo             | Valor de Exemplo      |
-| ----------------- | --------------------- |
-| `id`              | 12                    |
-| `nome`            | `João da Silva`       |
-| `username`        | `joaosilva`           |
-| `senha`           | `senhaSegura123`      |
-| `tipo_usuario`    | `voluntario`          |
-| `telefone`        | `(51) 99999-8888`     |
-| `id_endereco`     | 1                     |
-| `data_nascimento` | `1990-04-15`          |
-| `documento`       | `12345678900` *(CPF)* |
-| `status`          | `1` *(ativo)*         |
+| Campo             | Valor de Exemplo |
+| ----------------- | ---------------- |
+| `id_tipo_usuario` | 1                |
+| `descricao`       | `Voluntário`     |
 
 
 ## Tabela `Endereco`
@@ -49,7 +27,7 @@
 
 | Campo         | Valor de Exemplo              |
 | ------------- | ----------------------------- |
-| `id`          | 1                             |
+| `id_endereco`          | 1                             |
 | `rua`         | `Rua das Acácias`             |
 | `numero`      | `234`                         |
 | `bairro`      | `Centro`                      |
@@ -57,6 +35,35 @@
 | `estado`      | `RS`                          |
 | `cep`         | `90010-123`                   |
 | `complemento` | `Próximo ao Hospital Central` |
+
+
+## Tabela `Usuario`
+
+📄 *Armazena os dados principais dos usuários do sistema, incluindo todos os perfis (admin, voluntário, profissional, atendido).*
+
+- **id**: Identificador único do usuário
+- **nome**: Nome completo do usuário
+- **username**: Nome de usuário utilizado para login
+- **senha**: Senha de acesso do usuário
+- **id_tipo_usuario**: Define o perfil do usuário (admin, voluntario, profissional, atendido)
+- **telefone**: Número de telefone para contato
+- **id_endereco**: Chave estrangeira para a tabela de endereço
+- **data_nascimento**: Data de nascimento do usuário
+- **documento**: Número de documento (CPF, RG, etc.)
+- **status**: Indica se o usuário está ativo (1) ou inativo (0)
+
+| Campo             | Valor de Exemplo      |
+| ----------------- | --------------------- |
+| `id_usuario`              | 12                    |
+| `nome`            | `João da Silva`       |
+| `username`        | `joaosilva`           |
+| `senha`           | `senhaHasheada`      |
+| `id_tipo_usuario`    | `1`          |
+| `telefone`        | `(51) 99999-8888`     |
+| `id_endereco`     | `1`                     |
+| `data_nascimento` | `1990-04-15`          |
+| `documento`       | `12345678900` *(CPF)* |
+| `status`          | `1` *(ativo)*         |
 
 
 ## Tabela `Categoria`
@@ -68,7 +75,7 @@
 
 | Campo       | Valor de Exemplo |
 | ----------- | ---------------- |
-| `id`        | 2                |
+| `id_categoria`        | 2                |
 | `descricao` | `Higiene`        |
 
 
@@ -83,7 +90,7 @@
 
 | Campo              | Valor de Exemplo                                                                                                             |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| `id`               | 4                                                                                                                            |
+| `id_abrigo`               | 4                                                                                                                            |
 | `capacidade_total` | 80                                                                                                                           |
 | `ocupacao_atual`   | 62                                                                                                                           |
 | `descricao`        | `Abrigo temporário localizado na Escola Estadual Aurora, com estrutura básica, alimentação e atendimento médico voluntário.` |
@@ -101,7 +108,7 @@
 
 | Campo          | Valor de Exemplo                                            |
 | -------------- | ----------------------------------------------------------- |
-| `id`           | 23                                                          |
+| `id_doacao`           | 23                                                          |
 | `id_abrigo`    | 4 *(referência ao abrigo que cadastrou a doação)*           |
 | `descricao`    | Kits de higiene pessoal (sabonete, escova e creme dental)   |
 | `id_categoria` | 2 *(referência à categoria: 'Higiene')*                     |
@@ -113,16 +120,14 @@
 📄 *Define os usuários que estão em situação de vulnerabilidade e recebem auxílio. Estende os dados de `Usuario`.*
 
 - **id**: Chave estrangeira para o usuário atendido
-- **categoria**: Categoria da necessidade da pessoa atendida
 - **servico_desejado**: Tipo de ajuda desejada
 - **observacoes**: Informações adicionais sobre a pessoa atendida
 
 | Campo              | Valor de Exemplo                                   |
 | ------------------ | -------------------------------------------------- |
-| `id`               | 17 *(referência ao usuário correspondente)*        |
-| `categoria`        | `Família em situação de desabrigo`                 |
+| `id_pessoa_atendida`               | 17 *(referência ao usuário correspondente)*        |
 | `servico_desejado` | `Abrigo e alimentação`                             |
-| `observacoes`      | `Família com 3 crianças; sem acesso a transporte.` |
+| `observacao`      | `Família com 3 crianças; sem acesso a transporte.` |
 
 
 ## Tabela `Distribuicao`
@@ -130,50 +135,72 @@
 📄 *Rastreia a destinação de doações para pessoas atendidas, incluindo quantidade e data da entrega.*
 
 - **id**: Identificador único da distribuição
-- **doacao_id**: Doação que está sendo distribuída
+- **id_doacao**: Doação que está sendo distribuída
 - **qtd_destinada**: Quantidade destinada nesta distribuição
 - **data_destinada**: Data da distribuição
 - **id_pessoa_atendida_fk**: Pessoa atendida que irá receber a doação
 
 | Campo                   | Valor de Exemplo                                          |
 | ----------------------- | --------------------------------------------------------- |
-| `id`                    | 15                                                        |
-| `doacao_id`             | 23 *(referência à doação cadastrada pelo abrigo)*         |
+| `id_distribuicao`                    | 15                                                        |
+| `id_doacao`             | 23 *(referência à doação cadastrada pelo abrigo)*         |
 | `qtd_destinada`         | 3                                                         |
 | `data_destinada`        | `2025-05-23`                                              |
 | `id_pessoa_atendida_fk` | 17 *(referência à pessoa atendida que receberá a doação)* |
+
+
+## Tabela `Categoria_Voluntario`
+📄 Armazena as categorias de atuação dos voluntários cadastrados no sistema. Permite classificar e organizar os tipos de ajuda oferecida, como Saúde, Educação, Assistência Social, entre outras.
+
+- **id_categoria_voluntario:** Identificador único da categoria
+- **descricao:** Descrição textual da área de atuação do voluntário
+
+| Campo                     | Valor de Exemplo     |
+| ------------------------- | -------------------- |
+| `id_categoria_voluntario` | 2                    |
+| `descricao`               | `Assistência Social` |
+
+
+## Tabela `Disponibilidade`
+📄 Define os períodos de disponibilidade dos voluntários para atuação no sistema. É usada para indicar em quais turnos ou horários os voluntários estão aptos a colaborar.
+
+- **id_disponibilidade:** Identificador único do período de disponibilidade
+- **descricao:** Descrição do período disponível (ex: Manhã, Tarde, Noite, Integral)
+
+| Campo                | Valor de Exemplo |
+| -------------------- | ---------------- |
+| `id_disponibilidade` | 3                |
+| `descricao`          | `Tarde`          |
 
 
 ## Tabela `Voluntario`
 
 📄 *Perfil especializado do usuário que atua como voluntário no sistema, com informações sobre categoria e disponibilidade.*
 
-- **id**: Chave estrangeira para o usuário voluntário
-- **categoria**: Categoria de atuação do voluntário
-- **disponibilidade**: Informações sobre a disponibilidade do voluntário
+- **id_voluntario:** Identificador único do voluntário (referência direta ao Usuario)
+- **id_categoria_voluntario:** Chave estrangeira para a categoria de atuação do voluntário
+- **id_disponibilidade:** Chave estrangeira indicando o período em que o voluntário está disponível
 
-| Campo             | Valor de Exemplo                                |
-| ----------------- | ----------------------------------------------- |
-| `id`              | 8 *(referência ao usuário voluntário)*          |
-| `categoria`       | `Distribuição de alimentos`                     |
-| `disponibilidade` | `Disponível de segunda a sexta, das 14h às 18h` |
+| Campo                     | Valor de Exemplo |
+| ------------------------- | ---------------- |
+| `id_voluntario`           | 12               |
+| `id_categoria_voluntario` | 1 *(Saúde)*   |
+| `id_disponibilidade`      | 2 *(Tarde)*      |
 
 
 ## Tabela `Empresa_Parceira`
 
-📄 *Cadastro de empresas parceiras que oferecem serviços durante crises, vinculadas a um usuário responsável.*
+📄 Armazena informações de empresas ou instituições parceiras que oferecem serviços ou recursos durante situações de crise. Cada empresa é representada por um usuário e está associada a uma categoria de atuação.
 
-- **id**: Identificador único da empresa parceira
-- **usuario_id**: Usuário responsável pela empresa parceira
-- **categoria**: Categoria da empresa
-- **servico_oferecido**: Descrição dos serviços oferecidos pela empresa
+- **id_empresa_parceira:** Identificador único da empresa parceira (também é um usuário)
+- ** id_categoria:** Chave estrangeira que indica a categoria principal de atuação da empresa (ex: alimentação, transporte, etc.)
+- **servico_oferecido:** Descrição textual do serviço ou apoio oferecido pela empresa
 
-| Campo               | Valor de Exemplo                                                     |
-| ------------------- | -------------------------------------------------------------------- |
-| `id`                | 4                                                                    |
-| `usuario_id`        | 12 *(referência ao responsável pela empresa)*                        |
-| `categoria`         | `Transporte solidário`                                               |
-| `servico_oferecido` | `Disponibiliza vans para levar pessoas até abrigos durante a crise.` |
+| Campo                 | Valor de Exemplo            |
+| --------------------- | --------------------------- |
+| `id_empresa_parceira` | 15                          |
+| `id_categoria`        | 2 *(Transporte)*            |
+| `servico_oferecido`   | `Fornece vans para abrigos` |
 
 
 ## Tabela `Especialidade`
@@ -189,78 +216,73 @@
 | `descricao` | `Psicologia`     |
 
 
-## Tabela `Feedback`
+## Tabela `Feedbacks`
 
 📄 *Armazena avaliações feitas a profissionais de saúde, com nota, comentário e data.*
 
-- **id**: Identificador único do feedback
-- **nota**: Nota dada no feedback
-- **comentario**: Comentário escrito pelo avaliador
-- **data_feedback**: Data em que o feedback foi feito
+- **id_feedback:** Identificador único do feedback
+- **nota:** Nota atribuída ao atendimento ou interação (ex: de 1 a 5)
+- **comentario:** Comentário textual fornecido pelo avaliador
+- **data_feedback:** Data e hora em que o feedback foi registrado
+- **id_avaliado:** Chave estrangeira para o usuário que está sendo avaliado
+- **id_usuario:** Chave estrangeira para o usuário que realizou a avaliação
 
-| Campo           | Valor de Exemplo                                                 |
-| --------------- | ---------------------------------------------------------------- |
-| `id`            | 21                                                               |
-| `nota`          | 5                                                                |
-| `comentario`    | `Excelente atendimento. A psicóloga foi atenciosa e acolhedora.` |
-| `data_feedback` | `2025-05-22`                                                     |
+| Campo           | Valor de Exemplo                           |
+| --------------- | ------------------------------------------ |
+| `id_feedback`   | 3                                          |
+| `nota`          | 5                                          |
+| `comentario`    | `Atendimento excelente e muito acolhedor.` |
+| `data_feedback` | `2025-05-25 10:30:00`                      |
+| `id_avaliado`   | 8 *(Profissional avaliado)*                |
+| `id_usuario`    | 12 *(Usuário que avaliou)*                 |
+
 
 
 ## Tabela `Profissional_Saude`
 
-📄 *Perfil especializado do usuário que atua como profissional da saúde, vinculado à sua especialidade e feedbacks recebidos.*
+📄 Armazena informações complementares dos usuários que atuam como profissionais de saúde na plataforma. Cada profissional está vinculado a uma especialidade e define se seu atendimento é presencial, remoto ou híbrido.
 
-- **id**: Chave estrangeira para o usuário profissional
-- **id_especialidade**: Especialidade do profissional
-- **forma_atendimento**: Tipo de atendimento oferecido (presencial, remoto)
-- **id_feedback**: Chave estrangeira para o feedback recebido
+- **id_profissional:** Identificador único do profissional (também é um Usuario)
+- **id_especialidade:** Chave estrangeira para a especialidade do profissional (ex: Psicologia, Enfermagem)
 
-| Campo       | Valor de Exemplo                                                         |
-| ----------- | ------------------------------------------------------------------------ |
-| `id`        | 7                                                                        |
-| `mensagem`  | `Família com 3 crianças precisando de abrigo e alimentos na zona norte.` |
-| `tipo`      | `socorro`                                                                |
-| `status`    | `aberta`                                                                 |
-| `data_hora` | `2025-05-23 15:45:12`                                                    |
+| Campo                  | Valor de Exemplo |
+| ---------------------- | ---------------- |
+| `id_profissional`      | 8                |
+| `id_especialidade`     | 2 *(Psicologia)* |
+
 
 ## Tabela `Mural_Emergencia`
+📄 Registra as mensagens publicadas por usuários no mural de emergência. Essas mensagens servem para relatar necessidades, emitir alertas ou fornecer informações importantes durante uma crise.
 
-📄 *Espaço público onde usuários podem postar mensagens emergenciais como pedidos de ajuda ou alertas.*
+- **id_mural:** Identificador único da publicação no mural
+- **id_usuario:** Chave estrangeira para o usuário que publicou a mensagem
+- **mensagem:** Conteúdo textual da mensagem publicada
+- **id_tipo_mural_emergencia:** Tipo da mensagem (ex: Alerta, Aviso, Informação)
+- **data_hora:** Data e hora da publicação da mensagem
 
-- **id**: Identificador único da mensagem no mural
-- **mensagem**: Conteúdo da mensagem
-- **tipo**: Tipo da mensagem (socorro, aviso, etc.)
-- **status**: Status da mensagem (aberta, resolvida)
-- **data_hora**: Data e hora da postagem
-
-| Campo       | Valor de Exemplo                                                         |
-| ----------- | ------------------------------------------------------------------------ |
-| `id`        | 7                                                                        |
-| `mensagem`  | `Família com 3 crianças precisando de abrigo e alimentos na zona norte.` |
-| `tipo`      | `socorro`                                                                |
-| `status`    | `aberta`                                                                 |
-| `data_hora` | `2025-05-23 15:45:12`                                                    |
+| Campo                      | Valor de Exemplo                        |
+| -------------------------- | --------------------------------------- |
+| `id_mural`                 | 6                                       |
+| `id_usuario`               | 12 *(João da Silva)*                    |
+| `mensagem`                 | `Família desabrigada precisa de roupas` |
+| `id_tipo_mural_emergencia` | 1 *(Alerta)*                            |
+| `data_hora`                | `2025-05-26 14:10:00`                   |
 
 
-## Tabela `RegistroEvento`
+## Tabela `Registro_Evento`
+📄 Registra os eventos ocorridos no sistema, como doações realizadas, distribuições efetuadas, atendimentos prestados, entre outros. Cada registro está vinculado a um tipo de evento, a um usuário e armazena a data e a localização do ocorrido.
 
-📄 *Tabela de log que armazena eventos importantes do sistema, como ações de usuários ou interações críticas.*
+- **id_registro_evento:** Identificador único do evento registrado
+- **descricao:** Descrição detalhada do que aconteceu no evento
+- **data_hora:** Data e hora em que o evento ocorreu
+- **id_usuario:** Chave estrangeira do usuário responsável ou envolvido no evento
+- **localizacao:** Informação textual sobre onde o evento ocorreu
 
-- **id**: Identificador único do evento registrado
-- **tipo_evento**: Tipo do evento (login, distribuição, etc.)
-- **descricao**: Descrição do que ocorreu
-- **data_hora**: Momento em que o evento aconteceu
-- **id_usuario**: Usuário responsável pelo evento
-- **localizacao**: Local associado ao evento
-- **dados_json**: Dados complementares armazenados em formato JSON
-
-| Campo         | Valor de Exemplo                                               |
-| ------------- | -------------------------------------------------------------- |
-| `id`          | 1                                                              |
-| `tipo_evento` | `distribuicao.criada`                                          |
-| `descricao`   | `Doação ID 23 foi distribuída para a pessoa atendida ID 17`    |
-| `data_hora`   | `2025-05-23 14:32:10`                                          |
-| `id_usuario`  | `5` (representa o voluntário que executou a ação)              |
-| `localizacao` | `Porto Alegre - RS`                                            |
-| `dados_json`  | `{"doacao_id": 23, "pessoa_atendida_id": 17, "quantidade": 5}` |
+| Campo                | Valor de Exemplo                               |
+| -------------------- | ---------------------------------------------- |
+| `id_registro_evento` | 4                                              |
+| `descricao`          | `Distribuição de 20 kits de higiene`           |
+| `data_hora`          | `2025-05-25 17:45:00`                          |
+| `id_usuario`         | 12 *(João da Silva)*                           |
+| `localizacao`        | `Abrigo Escola Estadual Aurora - Porto Alegre` |
 
