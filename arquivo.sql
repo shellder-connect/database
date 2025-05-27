@@ -195,7 +195,16 @@ INSERT INTO T_Registro_Evento (descricao, data_hora, id_usuario, localizacao, id
 
 -- 2. Empacotamento de Objetos
 
--- 1. T_Tipo_Usuario
+/***************************************************************************************************************************
+    -- 1. T_Tipo_Usuario
+
+    Procedures (inserção, alteração, exclusão, busca e relatório)
+    Função (retorno de total)
+    Trigger (validação automática)
+    Cursores com loops
+    Controle de fluxo com IF/ELSE
+    Relatórios com agregação e subconsulta (JOIN simplificado)
+***************************************************************************************************************************/
 
 -- 1.1. Cabeçalho 
 CREATE OR REPLACE PACKAGE pkg_tipo_usuario AS
@@ -204,39 +213,43 @@ CREATE OR REPLACE PACKAGE pkg_tipo_usuario AS
     PROCEDURE excluir_tipo_usuario(p_id IN NUMBER);
     PROCEDURE listar_tipo_usuario(p_cursor OUT SYS_REFCURSOR);
     PROCEDURE buscar_tipo_usuario(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR);
+    FUNCTION contar_tipos_usuario RETURN NUMBER;
+    PROCEDURE inserir_ou_atualizar_tipo_usuario(p_id IN NUMBER, p_descricao IN VARCHAR2);
+    PROCEDURE relatorio_tipo_usuario(p_cursor OUT SYS_REFCURSOR);
 END pkg_tipo_usuario;
 
 -- 1.2. Corpo
 CREATE OR REPLACE PACKAGE BODY pkg_tipo_usuario AS
 
+    -- Inserção
     PROCEDURE inserir_tipo_usuario(p_descricao IN VARCHAR2) IS
     BEGIN
         INSERT INTO T_Tipo_Usuario (descricao)
         VALUES (p_descricao);
-
         COMMIT;
     END inserir_tipo_usuario;
 
 
+    -- Atualização
     PROCEDURE atualizar_tipo_usuario(p_id IN NUMBER, p_descricao IN VARCHAR2) IS
     BEGIN
         UPDATE T_Tipo_Usuario
         SET descricao = p_descricao
         WHERE id_tipo_usuario = p_id;
-
         COMMIT;
     END atualizar_tipo_usuario;
 
 
+    -- Exclusão
     PROCEDURE excluir_tipo_usuario(p_id IN NUMBER) IS
     BEGIN
         DELETE FROM T_Tipo_Usuario
         WHERE id_tipo_usuario = p_id;
-
         COMMIT;
     END excluir_tipo_usuario;
 
 
+    -- Listagem de todos
     PROCEDURE listar_tipo_usuario(p_cursor OUT SYS_REFCURSOR) IS
     BEGIN
         OPEN p_cursor FOR
@@ -245,6 +258,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_tipo_usuario AS
     END listar_tipo_usuario;
 
 
+    -- Busca por ID
     PROCEDURE buscar_tipo_usuario(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
     BEGIN
         OPEN p_cursor FOR
@@ -253,9 +267,96 @@ CREATE OR REPLACE PACKAGE BODY pkg_tipo_usuario AS
             WHERE id_tipo_usuario = p_id;
     END buscar_tipo_usuario;
 
+
+    -- 🔥 Função: Conta quantos tipos de usuário existem
+    FUNCTION contar_tipos_usuario RETURN NUMBER IS
+        v_count NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO v_count FROM T_Tipo_Usuario;
+        RETURN v_count;
+    END contar_tipos_usuario;
+
+
+    -- 🔥 IF/ELSE: Insere ou atualiza, dependendo se o ID existe
+    PROCEDURE inserir_ou_atualizar_tipo_usuario(p_id IN NUMBER, p_descricao IN VARCHAR2) IS
+        v_count NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO v_count
+        FROM T_Tipo_Usuario
+        WHERE id_tipo_usuario = p_id;
+
+        IF v_count = 0 THEN
+            INSERT INTO T_Tipo_Usuario (id_tipo_usuario, descricao)
+            VALUES (p_id, p_descricao);
+        ELSE
+            UPDATE T_Tipo_Usuario
+            SET descricao = p_descricao
+            WHERE id_tipo_usuario = p_id;
+        END IF;
+
+        COMMIT;
+    END inserir_ou_atualizar_tipo_usuario;
+
+
+    -- 🔥 Relatório (poderia ter JOINs, exemplo simplificado)
+    PROCEDURE relatorio_tipo_usuario(p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT id_tipo_usuario, descricao,
+                   (SELECT COUNT(*) FROM T_Usuario u WHERE u.id_tipo_usuario = t.id_tipo_usuario) AS total_usuarios
+            FROM T_Tipo_Usuario t;
+    END relatorio_tipo_usuario;
+
 END pkg_tipo_usuario;
 
+-- Trigger para Validação (impede descrições duplicadas)
+CREATE OR REPLACE TRIGGER trg_valida_tipo_usuario
+BEFORE INSERT OR UPDATE ON T_Tipo_Usuario
+FOR EACH ROW
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count
+    FROM T_Tipo_Usuario
+    WHERE UPPER(descricao) = UPPER(:NEW.descricao)
+      AND (id_tipo_usuario != :NEW.id_tipo_usuario OR :NEW.id_tipo_usuario IS NULL);
+
+    IF v_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Descrição de tipo de usuário já existente.');
+    END IF;
+END;
+
+
 -- Testes das Procedures T_Tipo_Usuario
+
+-- Função
+DECLARE
+    v_total NUMBER;
+BEGIN
+    v_total := pkg_tipo_usuario.contar_tipos_usuario;
+    DBMS_OUTPUT.PUT_LINE('Total de tipos de usuário: ' || v_total);
+END;
+
+--  Exemplo de relatório com cursor
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id NUMBER;
+    v_descricao VARCHAR2(50);
+    v_total_usuarios NUMBER;
+BEGIN
+    pkg_tipo_usuario.relatorio_tipo_usuario(v_cursor);
+
+    LOOP
+        FETCH v_cursor INTO v_id, v_descricao, v_total_usuarios;
+        EXIT WHEN v_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id || 
+                             ', Descrição: ' || v_descricao || 
+                             ', Total Usuários: ' || v_total_usuarios);
+    END LOOP;
+
+    CLOSE v_cursor;
+END;
 
 -- 1.3. Inserir
 BEGIN
@@ -314,7 +415,16 @@ BEGIN
     pkg_tipo_usuario.excluir_tipo_usuario(7);
 END;
 
--- 2. T_Endereco
+/*********************************************************************************************************************
+    -- 2. T_Endereco
+
+    Procedures (CRUD completo + relatório)
+    Função (quantidade por cidade)
+    Trigger (validação de CEP)
+    Cursores com loop
+    Controle de fluxo com IF/ELSE
+    Relatório com agrupamento e ordenação
+*********************************************************************************************************************/
 
 -- 2.1. Cabeçalho 
 CREATE OR REPLACE PACKAGE pkg_endereco AS
@@ -344,11 +454,27 @@ CREATE OR REPLACE PACKAGE pkg_endereco AS
     PROCEDURE listar_endereco(p_cursor OUT SYS_REFCURSOR);
 
     PROCEDURE buscar_endereco(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR);
+
+    FUNCTION contar_enderecos_por_cidade(p_cidade IN VARCHAR2) RETURN NUMBER;
+
+    PROCEDURE inserir_ou_atualizar_endereco(
+        p_id IN NUMBER,
+        p_rua IN VARCHAR2,
+        p_numero IN VARCHAR2,
+        p_bairro IN VARCHAR2,
+        p_cidade IN VARCHAR2,
+        p_estado IN VARCHAR2,
+        p_cep IN VARCHAR2,
+        p_complemento IN VARCHAR2
+    );
+
+    PROCEDURE relatorio_endereco_por_cidade(p_cursor OUT SYS_REFCURSOR);
 END pkg_endereco;
 
 -- 2.2. Corpo
 CREATE OR REPLACE PACKAGE BODY pkg_endereco AS
 
+    -- Inserção
     PROCEDURE inserir_endereco(
         p_rua IN VARCHAR2,
         p_numero IN VARCHAR2,
@@ -361,11 +487,11 @@ CREATE OR REPLACE PACKAGE BODY pkg_endereco AS
     BEGIN
         INSERT INTO T_Endereco (rua, numero, bairro, cidade, estado, cep, complemento)
         VALUES (p_rua, p_numero, p_bairro, p_cidade, p_estado, p_cep, p_complemento);
-
         COMMIT;
     END inserir_endereco;
 
 
+    -- Atualização
     PROCEDURE atualizar_endereco(
         p_id IN NUMBER,
         p_rua IN VARCHAR2,
@@ -386,20 +512,20 @@ CREATE OR REPLACE PACKAGE BODY pkg_endereco AS
             cep = p_cep,
             complemento = p_complemento
         WHERE id_endereco = p_id;
-
         COMMIT;
     END atualizar_endereco;
 
 
+    -- Exclusão
     PROCEDURE excluir_endereco(p_id IN NUMBER) IS
     BEGIN
         DELETE FROM T_Endereco
         WHERE id_endereco = p_id;
-
         COMMIT;
     END excluir_endereco;
 
 
+    -- Listar todos
     PROCEDURE listar_endereco(p_cursor OUT SYS_REFCURSOR) IS
     BEGIN
         OPEN p_cursor FOR
@@ -408,6 +534,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_endereco AS
     END listar_endereco;
 
 
+    -- Buscar por ID
     PROCEDURE buscar_endereco(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
     BEGIN
         OPEN p_cursor FOR
@@ -416,9 +543,85 @@ CREATE OR REPLACE PACKAGE BODY pkg_endereco AS
             WHERE id_endereco = p_id;
     END buscar_endereco;
 
+
+    -- 🔥 Função: Conta quantos endereços há em uma cidade
+    FUNCTION contar_enderecos_por_cidade(p_cidade IN VARCHAR2) RETURN NUMBER IS
+        v_count NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO v_count
+        FROM T_Endereco
+        WHERE UPPER(cidade) = UPPER(p_cidade);
+        RETURN v_count;
+    END contar_enderecos_por_cidade;
+
+
+    -- 🔥 IF/ELSE: Insere ou atualiza
+    PROCEDURE inserir_ou_atualizar_endereco(
+        p_id IN NUMBER,
+        p_rua IN VARCHAR2,
+        p_numero IN VARCHAR2,
+        p_bairro IN VARCHAR2,
+        p_cidade IN VARCHAR2,
+        p_estado IN VARCHAR2,
+        p_cep IN VARCHAR2,
+        p_complemento IN VARCHAR2
+    ) IS
+        v_count NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO v_count
+        FROM T_Endereco
+        WHERE id_endereco = p_id;
+
+        IF v_count = 0 THEN
+            INSERT INTO T_Endereco (id_endereco, rua, numero, bairro, cidade, estado, cep, complemento)
+            VALUES (p_id, p_rua, p_numero, p_bairro, p_cidade, p_estado, p_cep, p_complemento);
+        ELSE
+            UPDATE T_Endereco
+            SET rua = p_rua,
+                numero = p_numero,
+                bairro = p_bairro,
+                cidade = p_cidade,
+                estado = p_estado,
+                cep = p_cep,
+                complemento = p_complemento
+            WHERE id_endereco = p_id;
+        END IF;
+
+        COMMIT;
+    END inserir_ou_atualizar_endereco;
+
+
+    -- 🔥 Relatório: Agrupamento por cidade e estado
+    PROCEDURE relatorio_endereco_por_cidade(p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT cidade, estado, COUNT(*) AS total_enderecos
+            FROM T_Endereco
+            GROUP BY cidade, estado
+            ORDER BY cidade, estado;
+    END relatorio_endereco_por_cidade;
+
 END pkg_endereco;
 
+-- Trigger de Validação de CEP
+CREATE OR REPLACE TRIGGER trg_valida_cep
+BEFORE INSERT OR UPDATE ON T_Endereco
+FOR EACH ROW
+BEGIN
+    IF :NEW.cep IS NULL OR LENGTH(REPLACE(:NEW.cep, '-', '')) < 8 THEN
+        RAISE_APPLICATION_ERROR(-20002, 'CEP inválido. Informe um CEP com no mínimo 8 dígitos.');
+    END IF;
+END;
+
 -- Testes das Procedures T_Endereco
+
+-- Teste da função
+DECLARE
+    v_total NUMBER;
+BEGIN
+    v_total := pkg_endereco.contar_enderecos_por_cidade('São Paulo');
+    DBMS_OUTPUT.PUT_LINE('Total de endereços em São Paulo: ' || v_total);
+END;
 
 -- 2.3. Inserir
 BEGIN
@@ -515,7 +718,31 @@ BEGIN
     pkg_endereco.excluir_endereco(2);
 END;
 
--- 3. T_Usuario
+-- 2.8. Teste do relatório com cursor
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_cidade VARCHAR2(100);
+    v_estado VARCHAR2(100);
+    v_total NUMBER;
+BEGIN
+    pkg_endereco.relatorio_endereco_por_cidade(v_cursor);
+
+    LOOP
+        FETCH v_cursor INTO v_cidade, v_estado, v_total;
+        EXIT WHEN v_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE('Cidade: ' || v_cidade || 
+                             ', Estado: ' || v_estado || 
+                             ', Total de endereços: ' || v_total);
+    END LOOP;
+
+    CLOSE v_cursor;
+END;
+
+
+/********************************************************************************************************************
+    -- 3. T_Usuario
+*********************************************************************************************************************/
 
 -- 3.1. Cabeçalho 
 CREATE OR REPLACE PACKAGE pkg_usuario AS
@@ -696,7 +923,9 @@ BEGIN
     pkg_usuario.excluir_usuario(2);
 END;
 
--- 4. T_Categoria
+---------------------------------------------------------------------------------------------------------------------
+    -- 4. T_Categoria
+---------------------------------------------------------------------------------------------------------------------
 
 -- 4.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_categoria AS
@@ -802,7 +1031,9 @@ BEGIN
     pkg_categoria.excluir_categoria(7);
 END;
 
--- 5. T_Abrigo
+---------------------------------------------------------------------------------------------------------------------
+   -- 5. T_Abrigo
+---------------------------------------------------------------------------------------------------------------------
 
 -- 5.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_abrigo AS
@@ -920,7 +1151,9 @@ BEGIN
     pkg_abrigo.excluir_abrigo(7);
 END;
 
--- 6. T_Doacao
+---------------------------------------------------------------------------------------------------------------------
+    -- 6. T_Doacao
+---------------------------------------------------------------------------------------------------------------------
 
 -- 6.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_doacao AS
@@ -1044,7 +1277,9 @@ BEGIN
     pkg_doacao.excluir_doacao(7);
 END;
 
--- 7. T_Distribuicao
+---------------------------------------------------------------------------------------------------------------------
+    -- 7. T_Distribuicao
+---------------------------------------------------------------------------------------------------------------------
 
 -- 7.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_distribuicao AS
@@ -1151,7 +1386,9 @@ BEGIN
     pkg_distribuicao.excluir_distribuicao(7);
 END;
 
--- 8. T_Feedbacks
+---------------------------------------------------------------------------------------------------------------------
+    -- 8. T_Feedbacks
+---------------------------------------------------------------------------------------------------------------------
 
 -- 8.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_feedback AS
@@ -1255,7 +1492,9 @@ BEGIN
     pkg_feedback.excluir_feedback(7);
 END;
 
--- 9. T_Registro_Evento
+---------------------------------------------------------------------------------------------------------------------
+    -- 9. T_Registro_Evento
+---------------------------------------------------------------------------------------------------------------------
 
 -- 9.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_registro_evento AS
