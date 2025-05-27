@@ -1,5 +1,13 @@
 SET SERVEROUTPUT ON;
 
+-- Apagar todas as tabelas pois estou com logs antigos
+
+BEGIN
+    FOR rec IN (SELECT table_name FROM all_tables WHERE owner = 'RM553472') LOOP
+        EXECUTE IMMEDIATE 'DROP TABLE "' || rec.table_name || '" CASCADE CONSTRAINTS';
+    END LOOP;
+END;
+
 -- Nome dos Integrantes: 
 -- Claudio Silva Bispo RM553472
 -- Patricia Naomi Yamagishi RM552981
@@ -80,7 +88,6 @@ CREATE TABLE T_Doacao (
     CONSTRAINT fk_doacao_categoria FOREIGN KEY (id_categoria) REFERENCES T_Categoria(id_categoria)
 );
 
-
 -- DISTRIBUICAO
 CREATE TABLE T_Distribuicao (
     id_distribuicao     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -90,7 +97,6 @@ CREATE TABLE T_Distribuicao (
     id_pessoa_atendida  NUMBER NOT NULL,
     CONSTRAINT fk_distribuicao_doacao FOREIGN KEY (id_doacao) REFERENCES T_Doacao(id_doacao)
 );
-
 
 -- FEEDBACK
 CREATE TABLE T_Feedbacks (
@@ -127,15 +133,6 @@ INSERT INTO T_Tipo_Usuario (descricao) VALUES ('Profissional de Saúde');
 INSERT INTO T_Tipo_Usuario (descricao) VALUES ('Médico');
 INSERT INTO T_Tipo_Usuario (descricao) VALUES ('Comum');
 
--- T_Usuario
-INSERT INTO T_Usuario (nome, email, senha, id_tipo_usuario, telefone, id_endereco, data_nascimento, documento, status) VALUES ('Ana Silva', 'ana.silva@email.com', 'senha123', 1, '11999990001', 1, TO_DATE('1990-05-15', 'YYYY-MM-DD'), '12345678901', 1);
-INSERT INTO T_Usuario (nome, email, senha, id_tipo_usuario, telefone, id_endereco, data_nascimento, documento, status) VALUES ('Bruno Costa', 'bruno.costa@email.com', 'senha123', 2, '11999990002', 2, TO_DATE('1985-08-22', 'YYYY-MM-DD'), '23456789012', 1);
-INSERT INTO T_Usuario (nome, email, senha, id_tipo_usuario, telefone, id_endereco, data_nascimento, documento, status) VALUES ('Carla Mendes', 'carla.mendes@email.com', 'senha123', 3, '11999990003', 3, TO_DATE('1992-11-30', 'YYYY-MM-DD'), '34567890123', 1);
-INSERT INTO T_Usuario (nome, email, senha, id_tipo_usuario, telefone, id_endereco, data_nascimento, documento, status) VALUES ('Daniela Rocha', 'daniela.rocha@email.com', 'senha123', 4, '11999990004', 4, TO_DATE('1988-03-10', 'YYYY-MM-DD'), '45678901234', 1);
-INSERT INTO T_Usuario (nome, email, senha, id_tipo_usuario, telefone, id_endereco, data_nascimento, documento, status) VALUES ('Eduardo Lima', 'eduardo.lima@email.com', 'senha123', 5, '11999990005', 5, TO_DATE('1995-07-25', 'YYYY-MM-DD'), '56789012345', 1);
-INSERT INTO T_Usuario (nome, email, senha, id_tipo_usuario, telefone, id_endereco, data_nascimento, documento, status) VALUES ('Fernanda Alves', 'fernanda.alves@email.com', 'senha123', 6, '11999990006', 6, TO_DATE('1993-09-18', 'YYYY-MM-DD'), '67890123456', 1);
-INSERT INTO T_Usuario (nome, email, senha, id_tipo_usuario, telefone, id_endereco, data_nascimento, documento, status) VALUES ('Gustavo Pereira', 'gustavo.pereira@email.com', 'senha123', 7, '11999990007', 7, TO_DATE('1987-12-05', 'YYYY-MM-DD'), '78901234567', 1);
-
 -- T_Endereco
 INSERT INTO T_Endereco (rua, numero, bairro, cidade, estado, cep, complemento) VALUES ('Rua das Flores', '123', 'Centro', 'São Paulo', 'SP', '01001-000', 'Apartamento 101');
 INSERT INTO T_Endereco (rua, numero, bairro, cidade, estado, cep, complemento) VALUES ('Avenida Brasil', '456', 'Jardins', 'Rio de Janeiro', 'RJ', '20040-002', 'Bloco B');
@@ -144,6 +141,15 @@ INSERT INTO T_Endereco (rua, numero, bairro, cidade, estado, cep, complemento) V
 INSERT INTO T_Endereco (rua, numero, bairro, cidade, estado, cep, complemento) VALUES ('Avenida Paulista', '1000', 'Paulista', 'São Paulo', 'SP', '01310-100', 'Cobertura');
 INSERT INTO T_Endereco (rua, numero, bairro, cidade, estado, cep, complemento) VALUES ('Rua XV de Novembro', '55', 'Centro', 'Florianópolis', 'SC', '88010-400', 'Frente à praça');
 INSERT INTO T_Endereco (rua, numero, bairro, cidade, estado, cep, complemento) VALUES ('Avenida Getúlio Vargas', '88', 'Centro', 'Porto Alegre', 'RS', '90010-150', 'Loja 3');
+
+-- T_Usuario
+INSERT INTO T_Usuario (nome, username, senha, id_tipo_usuario, telefone, id_endereco, data_nascimento, documento, status) VALUES ('Ana Silva', 'ana.silva@email.com', 'senha123', 1, '11999990001', 1, TO_DATE('1990-05-15', 'YYYY-MM-DD'), '12345678901', 1);
+INSERT INTO T_Usuario (nome, username, senha, id_tipo_usuario, telefone, id_endereco, data_nascimento, documento, status) VALUES ('Bruno Costa', 'bruno.costa@email.com', 'senha123', 2, '11999990002', 2, TO_DATE('1985-08-22', 'YYYY-MM-DD'), '23456789012', 1);
+INSERT INTO T_Usuario (nome, username, senha, id_tipo_usuario, telefone, id_endereco, data_nascimento, documento, status) VALUES ('Carla Mendes', 'carla.mendes@email.com', 'senha123', 3, '11999990003', 3, TO_DATE('1992-11-30', 'YYYY-MM-DD'), '34567890123', 1);
+INSERT INTO T_Usuario (nome, username, senha, id_tipo_usuario, telefone, id_endereco, data_nascimento, documento, status) VALUES ('Daniela Rocha', 'daniela.rocha@email.com', 'senha123', 4, '11999990004', 4, TO_DATE('1988-03-10', 'YYYY-MM-DD'), '45678901234', 1);
+INSERT INTO T_Usuario (nome, username, senha, id_tipo_usuario, telefone, id_endereco, data_nascimento, documento, status) VALUES ('Eduardo Lima', 'eduardo.lima@email.com', 'senha123', 5, '11999990005', 5, TO_DATE('1995-07-25', 'YYYY-MM-DD'), '56789012345', 1);
+INSERT INTO T_Usuario (nome, username, senha, id_tipo_usuario, telefone, id_endereco, data_nascimento, documento, status) VALUES ('Fernanda Alves', 'fernanda.alves@email.com', 'senha123', 6, '11999990006', 6, TO_DATE('1993-09-18', 'YYYY-MM-DD'), '67890123456', 1);
+INSERT INTO T_Usuario (nome, username, senha, id_tipo_usuario, telefone, id_endereco, data_nascimento, documento, status) VALUES ('Gustavo Pereira', 'gustavo.pereira@email.com', 'senha123', 7, '11999990007', 7, TO_DATE('1987-12-05', 'YYYY-MM-DD'), '78901234567', 1);
 
 -- T_Categoria
 INSERT INTO T_Categoria (descricao) VALUES ('Alimentos');
@@ -235,7 +241,6 @@ CREATE OR REPLACE PACKAGE BODY pkg_tipo_usuario AS
         COMMIT;
     END inserir_tipo_usuario;
 
-
     -- Atualização
     PROCEDURE atualizar_tipo_usuario(p_id IN NUMBER, p_descricao IN VARCHAR2) IS
     BEGIN
@@ -245,15 +250,37 @@ CREATE OR REPLACE PACKAGE BODY pkg_tipo_usuario AS
         COMMIT;
     END atualizar_tipo_usuario;
 
-
     -- Exclusão
     PROCEDURE excluir_tipo_usuario(p_id IN NUMBER) IS
     BEGIN
+        -- Excluir os feedbacks relacionados aos usuários do tipo
+        DELETE FROM T_Feedbacks
+        WHERE id_usuario IN (
+            SELECT id_usuario FROM T_Usuario WHERE id_tipo_usuario = p_id
+        );
+    
+        -- Excluir os registros de eventos relacionados aos usuários do tipo
+        DELETE FROM T_Registro_Evento
+        WHERE id_usuario IN (
+            SELECT id_usuario FROM T_Usuario WHERE id_tipo_usuario = p_id
+        );
+    
+        -- Excluir os usuários que pertencem ao tipo de usuário
+        DELETE FROM T_Usuario
+        WHERE id_tipo_usuario = p_id;
+    
+        -- Excluir endereços vinculados aos usuários (caso necessário)
+        DELETE FROM T_Endereco
+        WHERE id_endereco IN (
+            SELECT id_endereco FROM T_Usuario WHERE id_tipo_usuario = p_id
+        );
+    
+        -- Por fim, excluir o tipo de usuário
         DELETE FROM T_Tipo_Usuario
         WHERE id_tipo_usuario = p_id;
+    
         COMMIT;
     END excluir_tipo_usuario;
-
 
     -- Listagem de todos
     PROCEDURE listar_tipo_usuario(p_cursor OUT SYS_REFCURSOR) IS
@@ -262,7 +289,6 @@ CREATE OR REPLACE PACKAGE BODY pkg_tipo_usuario AS
             SELECT id_tipo_usuario, descricao
             FROM T_Tipo_Usuario;
     END listar_tipo_usuario;
-
 
     -- Busca por ID
     PROCEDURE buscar_tipo_usuario(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
@@ -273,8 +299,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_tipo_usuario AS
             WHERE id_tipo_usuario = p_id;
     END buscar_tipo_usuario;
 
-
-    -- 🔥 Função: Conta quantos tipos de usuário existem
+    -- Função: Conta quantos tipos de usuário existem
     FUNCTION contar_tipos_usuario RETURN NUMBER IS
         v_count NUMBER;
     BEGIN
@@ -282,8 +307,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_tipo_usuario AS
         RETURN v_count;
     END contar_tipos_usuario;
 
-
-    -- 🔥 IF/ELSE: Insere ou atualiza, dependendo se o ID existe
+    -- IF/ELSE: Insere ou atualiza, dependendo se o ID existe
     PROCEDURE inserir_ou_atualizar_tipo_usuario(p_id IN NUMBER, p_descricao IN VARCHAR2) IS
         v_count NUMBER;
     BEGIN
@@ -303,8 +327,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_tipo_usuario AS
         COMMIT;
     END inserir_ou_atualizar_tipo_usuario;
 
-
-    -- 🔥 Relatório (poderia ter JOINs, exemplo simplificado)
+    -- Relatório
     PROCEDURE relatorio_tipo_usuario(p_cursor OUT SYS_REFCURSOR) IS
     BEGIN
         OPEN p_cursor FOR
@@ -314,24 +337,6 @@ CREATE OR REPLACE PACKAGE BODY pkg_tipo_usuario AS
     END relatorio_tipo_usuario;
 
 END pkg_tipo_usuario;
-
--- Trigger para Validação (impede descrições duplicadas)
-CREATE OR REPLACE TRIGGER trg_valida_tipo_usuario
-BEFORE INSERT OR UPDATE ON T_Tipo_Usuario
-FOR EACH ROW
-DECLARE
-    v_count NUMBER;
-BEGIN
-    SELECT COUNT(*) INTO v_count
-    FROM T_Tipo_Usuario
-    WHERE UPPER(descricao) = UPPER(:NEW.descricao)
-      AND (id_tipo_usuario != :NEW.id_tipo_usuario OR :NEW.id_tipo_usuario IS NULL);
-
-    IF v_count > 0 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'Descrição de tipo de usuário já existente.');
-    END IF;
-END;
-
 
 -- Testes das Procedures T_Tipo_Usuario
 
@@ -366,13 +371,9 @@ END;
 
 -- 1.3. Inserir
 BEGIN
-    pkg_tipo_usuario.inserir_tipo_usuario('Administrador');
-    pkg_tipo_usuario.inserir_tipo_usuario('Voluntário');
-    pkg_tipo_usuario.inserir_tipo_usuario('Profissional de Saúde');
-    pkg_tipo_usuario.inserir_tipo_usuario('Pessoa Atendida');
-    pkg_tipo_usuario.inserir_tipo_usuario('Empresa Parceira');
-    pkg_tipo_usuario.inserir_tipo_usuario('Médico');
-    pkg_tipo_usuario.inserir_tipo_usuario('Comum');
+    pkg_tipo_usuario.inserir_tipo_usuario('Em Atendimento');
+    pkg_tipo_usuario.inserir_tipo_usuario('Em crise');
+    pkg_tipo_usuario.inserir_tipo_usuario('Desenvolvedor');
 END;
 
 -- 1.4. Atualizar
@@ -418,8 +419,10 @@ END;
 
 -- 1.7. Excluir
 BEGIN
-    pkg_tipo_usuario.excluir_tipo_usuario(7);
+    pkg_tipo_usuario.excluir_tipo_usuario(1);
 END;
+
+-- select * from T_Tipo_Usuario;
 
 /*********************************************************************************************************************
     2. T_Endereco
@@ -525,8 +528,37 @@ CREATE OR REPLACE PACKAGE BODY pkg_endereco AS
     -- Exclusão
     PROCEDURE excluir_endereco(p_id IN NUMBER) IS
     BEGIN
+    
+        -- Excluir os feedbacks relacionados aos usuários do tipo
+        DELETE FROM T_Feedbacks
+        WHERE id_usuario IN (
+            SELECT id_usuario FROM T_Usuario WHERE id_tipo_usuario = p_id
+        );
+    
+        -- Excluir os registros de eventos relacionados aos usuários do tipo
+        DELETE FROM T_Registro_Evento
+        WHERE id_usuario IN (
+            SELECT id_usuario FROM T_Usuario WHERE id_tipo_usuario = p_id
+        );
+    
+        -- Excluir os usuários que pertencem ao tipo de usuário
+        DELETE FROM T_Usuario
+        WHERE id_tipo_usuario = p_id;
+    
+        -- Excluir endereços vinculados aos usuários (caso necessário)
+        DELETE FROM T_Endereco
+        WHERE id_endereco IN (
+            SELECT id_endereco FROM T_Usuario WHERE id_tipo_usuario = p_id
+        );
+    
+        -- Por fim, excluir o tipo de usuário
+        DELETE FROM T_Tipo_Usuario
+        WHERE id_tipo_usuario = p_id;
+       
+        /*
         DELETE FROM T_Endereco
         WHERE id_endereco = p_id;
+        */
         COMMIT;
     END excluir_endereco;
 
@@ -561,7 +593,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_endereco AS
     END contar_enderecos_por_cidade;
 
 
-    -- 🔥 IF/ELSE: Insere ou atualiza
+    -- IF/ELSE: Insere ou atualiza
     PROCEDURE inserir_ou_atualizar_endereco(
         p_id IN NUMBER,
         p_rua IN VARCHAR2,
@@ -745,7 +777,6 @@ BEGIN
     CLOSE v_cursor;
 END;
 
-
 /********************************************************************************************************************
     3. T_Usuario
 *********************************************************************************************************************/
@@ -754,7 +785,7 @@ END;
 CREATE OR REPLACE PACKAGE pkg_usuario AS
     PROCEDURE inserir_usuario(
         p_nome IN VARCHAR2,
-        p_email IN VARCHAR2,
+        p_username IN VARCHAR2,
         p_senha IN VARCHAR2,
         p_id_tipo_usuario IN NUMBER,
         p_id_endereco IN NUMBER
@@ -763,7 +794,7 @@ CREATE OR REPLACE PACKAGE pkg_usuario AS
     PROCEDURE atualizar_usuario(
         p_id IN NUMBER,
         p_nome IN VARCHAR2,
-        p_email IN VARCHAR2,
+        p_username IN VARCHAR2,
         p_senha IN VARCHAR2,
         p_id_tipo_usuario IN NUMBER,
         p_id_endereco IN NUMBER
@@ -781,23 +812,22 @@ CREATE OR REPLACE PACKAGE BODY pkg_usuario AS
 
     PROCEDURE inserir_usuario(
         p_nome IN VARCHAR2,
-        p_email IN VARCHAR2,
+        p_username IN VARCHAR2,
         p_senha IN VARCHAR2,
         p_id_tipo_usuario IN NUMBER,
         p_id_endereco IN NUMBER
     ) IS
     BEGIN
-        INSERT INTO T_Usuario (nome, email, senha, id_tipo_usuario, id_endereco)
-        VALUES (p_nome, p_email, p_senha, p_id_tipo_usuario, p_id_endereco);
+        INSERT INTO T_Usuario (nome, username, senha, id_tipo_usuario, id_endereco)
+        VALUES (p_nome, p_username, p_senha, p_id_tipo_usuario, p_id_endereco);
 
         COMMIT;
     END inserir_usuario;
 
-
     PROCEDURE atualizar_usuario(
         p_id IN NUMBER,
         p_nome IN VARCHAR2,
-        p_email IN VARCHAR2,
+        p_username IN VARCHAR2,
         p_senha IN VARCHAR2,
         p_id_tipo_usuario IN NUMBER,
         p_id_endereco IN NUMBER
@@ -805,7 +835,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_usuario AS
     BEGIN
         UPDATE T_Usuario
         SET nome = p_nome,
-            email = p_email,
+            username = p_username,
             senha = p_senha,
             id_tipo_usuario = p_id_tipo_usuario,
             id_endereco = p_id_endereco
@@ -813,7 +843,6 @@ CREATE OR REPLACE PACKAGE BODY pkg_usuario AS
 
         COMMIT;
     END atualizar_usuario;
-
 
     PROCEDURE excluir_usuario(p_id IN NUMBER) IS
     BEGIN
@@ -823,11 +852,10 @@ CREATE OR REPLACE PACKAGE BODY pkg_usuario AS
         COMMIT;
     END excluir_usuario;
 
-
     PROCEDURE listar_usuarios(p_cursor OUT SYS_REFCURSOR) IS
     BEGIN
         OPEN p_cursor FOR
-            SELECT id_usuario, nome, email, senha, id_tipo_usuario, id_endereco
+            SELECT id_usuario, nome, username, senha, id_tipo_usuario, id_endereco
             FROM T_Usuario;
     END listar_usuarios;
 
@@ -835,7 +863,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_usuario AS
     PROCEDURE buscar_usuario(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
     BEGIN
         OPEN p_cursor FOR
-            SELECT id_usuario, nome, email, senha, id_tipo_usuario, id_endereco
+            SELECT id_usuario, nome, username, senha, id_tipo_usuario, id_endereco
             FROM T_Usuario
             WHERE id_usuario = p_id;
     END buscar_usuario;
@@ -847,10 +875,10 @@ END pkg_usuario;
 -- 3.3. Inserir
 BEGIN
     pkg_usuario.inserir_usuario(
-        'João Silva', 'joao@email.com', 'senha123', 1, 1
+        'João Silva', 'joao@email.com', 'senha123', 8, 8
     );
     pkg_usuario.inserir_usuario(
-        'Maria Souza', 'maria@email.com', 'senha456', 2, 2
+        'Maria Souza', 'maria@email.com', 'senha456', 9, 9
     );
 END;
 
@@ -859,7 +887,7 @@ BEGIN
     pkg_usuario.atualizar_usuario(
         p_id => 1,
         p_nome => 'João Pedro Silva',
-        p_email => 'joao.pedro@email.com',
+        p_username => 'joao.pedro@email.com',
         p_senha => 'novaSenha123',
         p_id_tipo_usuario => 1,
         p_id_endereco => 1
@@ -871,7 +899,7 @@ DECLARE
     v_cursor SYS_REFCURSOR;
     v_id NUMBER;
     v_nome VARCHAR2(100);
-    v_email VARCHAR2(100);
+    v_username VARCHAR2(100);
     v_senha VARCHAR2(100);
     v_id_tipo NUMBER;
     v_id_endereco NUMBER;
@@ -879,13 +907,13 @@ BEGIN
     pkg_usuario.listar_usuarios(v_cursor);
 
     LOOP
-        FETCH v_cursor INTO v_id, v_nome, v_email, v_senha, v_id_tipo, v_id_endereco;
+        FETCH v_cursor INTO v_id, v_nome, v_username, v_senha, v_id_tipo, v_id_endereco;
         EXIT WHEN v_cursor%NOTFOUND;
 
         DBMS_OUTPUT.PUT_LINE(
             'ID: ' || v_id || 
             ', Nome: ' || v_nome ||
-            ', Email: ' || v_email ||
+            ', Email: ' || v_username ||
             ', Senha: ' || v_senha ||
             ', ID Tipo Usuário: ' || v_id_tipo ||
             ', ID Endereço: ' || v_id_endereco
@@ -900,21 +928,21 @@ DECLARE
     v_cursor SYS_REFCURSOR;
     v_id NUMBER;
     v_nome VARCHAR2(100);
-    v_email VARCHAR2(100);
+    v_username VARCHAR2(100);
     v_senha VARCHAR2(100);
     v_id_tipo NUMBER;
     v_id_endereco NUMBER;
 BEGIN
-    pkg_usuario.buscar_usuario(1, v_cursor);
+    pkg_usuario.buscar_usuario(3, v_cursor);
 
     LOOP
-        FETCH v_cursor INTO v_id, v_nome, v_email, v_senha, v_id_tipo, v_id_endereco;
+        FETCH v_cursor INTO v_id, v_nome, v_username, v_senha, v_id_tipo, v_id_endereco;
         EXIT WHEN v_cursor%NOTFOUND;
 
         DBMS_OUTPUT.PUT_LINE(
             'ID: ' || v_id || 
             ', Nome: ' || v_nome ||
-            ', Email: ' || v_email ||
+            ', Email: ' || v_username ||
             ', Senha: ' || v_senha ||
             ', ID Tipo Usuário: ' || v_id_tipo ||
             ', ID Endereço: ' || v_id_endereco
@@ -981,15 +1009,11 @@ END pkg_categoria;
 
 -- 4.3. Inserir 
 BEGIN
-    pkg_categoria.inserir_categoria('Alimentos');
-    pkg_categoria.inserir_categoria('Roupas');
-    pkg_categoria.inserir_categoria('Higiene');
-    pkg_categoria.inserir_categoria('Brinquedos');
     pkg_categoria.inserir_categoria('Móveis');
     pkg_categoria.inserir_categoria('Eletrônicos');
-    pkg_categoria.inserir_categoria('Medicamentos');
 END;
 
+-- select * from T_Categoria
 
 -- 4.4. Atualizar 
 BEGIN
@@ -1641,4 +1665,3 @@ END;
 BEGIN
     pkg_registro_evento.excluir_evento(7);
 END;
-
