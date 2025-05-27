@@ -20,7 +20,7 @@ DROP TABLE T_Registro_Evento CASCADE CONSTRAINTS;
 -- TIPO USUARIO
 CREATE TABLE T_Tipo_Usuario (
     id_tipo_usuario     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    descricao           VARCHAR2(50) NOT NULL UNIQUE -- Pode ser "Comum","Voluntário", "Empresa Parceira", "Pessoa Atendida", "Profissional de Saúde",Médico, "Administrador", etc.
+    descricao           VARCHAR2(50) NOT NULL UNIQUE
 );
 
 -- USUARIO
@@ -54,7 +54,7 @@ CREATE TABLE T_Endereco (
 -- CATEGORIA
 CREATE TABLE T_Categoria (
     id_categoria    INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    descricao       VARCHAR2(50) NOT NULL UNIQUE -- Pode ser "Alimentos", "Roupas", "Higiene", etc.
+    descricao       VARCHAR2(50) NOT NULL UNIQUE
 );
 
 -- ABRIGO
@@ -101,11 +101,11 @@ CREATE TABLE T_Feedbacks (
 -- REGISTRO EVENTO
 CREATE TABLE T_Registro_Evento (
     id_registro_evento INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    descricao          VARCHAR2(255), -- mensagem, pode ser do mural ou outro tipo de evento.
+    descricao          VARCHAR2(255), 
     data_hora          TIMESTAMP,
     id_usuario         NUMBER NOT NULL,
     localizacao        VARCHAR2(200),
-    id_abrigo          NUMBER NOT NULL, -- registro que será vinculado a um abrigo específico
+    id_abrigo          NUMBER NOT NULL, 
     CONSTRAINT fk_registro_evento_abrigo FOREIGN KEY (id_abrigo) REFERENCES T_Abrigo(id_abrigo),
     CONSTRAINT fk_evento_usuario FOREIGN KEY (id_usuario) REFERENCES T_Usuario(id_usuario)
 );
