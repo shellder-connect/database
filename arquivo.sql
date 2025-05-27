@@ -1583,7 +1583,7 @@ CREATE OR REPLACE PACKAGE pkg_registro_evento AS
     );
 
     PROCEDURE atualizar_evento(
-        p_id_evento IN NUMBER,
+        p_id_registro_evento IN NUMBER, -- Corrigido nome do parâmetro
         p_descricao IN VARCHAR2,
         p_data_hora IN TIMESTAMP,
         p_id_usuario IN NUMBER,
@@ -1591,11 +1591,11 @@ CREATE OR REPLACE PACKAGE pkg_registro_evento AS
         p_id_abrigo IN NUMBER
     );
 
-    PROCEDURE excluir_evento(p_id_evento IN NUMBER);
+    PROCEDURE excluir_evento(p_id_registro_evento IN NUMBER); -- Corrigido nome do parâmetro
 
     PROCEDURE listar_eventos(p_cursor OUT SYS_REFCURSOR);
 
-    PROCEDURE buscar_evento(p_id_evento IN NUMBER, p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE buscar_evento(p_id_registro_evento IN NUMBER, p_cursor OUT SYS_REFCURSOR); -- Corrigido nome do parâmetro
 END pkg_registro_evento;
 
 -- 9.2. Corpo
@@ -1615,7 +1615,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_registro_evento AS
     END inserir_evento;
 
     PROCEDURE atualizar_evento(
-        p_id_evento IN NUMBER,
+        p_id_registro_evento IN NUMBER, -- Corrigido nome do parâmetro
         p_descricao IN VARCHAR2,
         p_data_hora IN TIMESTAMP,
         p_id_usuario IN NUMBER,
@@ -1629,13 +1629,13 @@ CREATE OR REPLACE PACKAGE BODY pkg_registro_evento AS
             id_usuario = p_id_usuario,
             localizacao = p_localizacao,
             id_abrigo = p_id_abrigo
-        WHERE id_evento = p_id_evento;
+        WHERE id_registro_evento = p_id_registro_evento; -- Correção
         COMMIT;
     END atualizar_evento;
 
-    PROCEDURE excluir_evento(p_id_evento IN NUMBER) IS
+    PROCEDURE excluir_evento(p_id_registro_evento IN NUMBER) IS -- Correção
     BEGIN
-        DELETE FROM T_Registro_Evento WHERE id_evento = p_id_evento;
+        DELETE FROM T_Registro_Evento WHERE id_registro_evento = p_id_registro_evento; -- Correção
         COMMIT;
     END excluir_evento;
 
@@ -1644,22 +1644,18 @@ CREATE OR REPLACE PACKAGE BODY pkg_registro_evento AS
         OPEN p_cursor FOR SELECT * FROM T_Registro_Evento;
     END listar_eventos;
 
-    PROCEDURE buscar_evento(p_id_evento IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
+    PROCEDURE buscar_evento(p_id_registro_evento IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS -- Correção
     BEGIN
-        OPEN p_cursor FOR SELECT * FROM T_Registro_Evento WHERE id_evento = p_id_evento;
+        OPEN p_cursor FOR SELECT * FROM T_Registro_Evento WHERE id_registro_evento = p_id_registro_evento; -- Correção
     END buscar_evento;
 
 END pkg_registro_evento;
 
 -- 9.3. Inserir
 BEGIN
-    pkg_registro_evento.inserir_evento('Reunião de planejamento semanal.', TO_TIMESTAMP('2025-05-01 09:00:00', 'YYYY-MM-DD HH24:MI:SS'), 1, 'Sala de reuniões', 1);
-    pkg_registro_evento.inserir_evento('Entrega de doações recebidas.', TO_TIMESTAMP('2025-05-02 10:30:00', 'YYYY-MM-DD HH24:MI:SS'), 2, 'Depósito central', 2);
-    pkg_registro_evento.inserir_evento('Treinamento de voluntários.', TO_TIMESTAMP('2025-05-03 11:15:00', 'YYYY-MM-DD HH24:MI:SS'), 3, 'Auditório principal', 3);
-    pkg_registro_evento.inserir_evento('Visita de inspeção da prefeitura.', TO_TIMESTAMP('2025-05-04 14:45:00', 'YYYY-MM-DD HH24:MI:SS'), 4, 'Sede administrativa', 4);
     pkg_registro_evento.inserir_evento('Campanha de arrecadação.', TO_TIMESTAMP('2025-05-05 16:20:00', 'YYYY-MM-DD HH24:MI:SS'), 5, 'Praça central', 5);
-    pkg_registro_evento.inserir_evento('Sessão de feedback com atendidos.', TO_TIMESTAMP('2025-05-06 13:10:00', 'YYYY-MM-DD HH24:MI:SS'), 6, 'Sala de convivência', 6);
-    pkg_registro_evento.inserir_evento('Evento de integração comunitária.', TO_TIMESTAMP('2025-05-07 15:55:00', 'YYYY-MM-DD HH24:MI:SS'), 7, 'Parque municipal', 7);
+    pkg_registro_evento.inserir_evento('Sessão de feedback com atendidos.', TO_TIMESTAMP('2025-05-06 13:10:00', 'YYYY-MM-DD HH24:MI:SS'), 5, 'Sala de convivência', 5);
+    pkg_registro_evento.inserir_evento('Evento de integração comunitária.', TO_TIMESTAMP('2025-05-07 15:55:00', 'YYYY-MM-DD HH24:MI:SS'), 5, 'Parque municipal', 5);
 END;
 
 -- 9.4. Atualizar
