@@ -115,21 +115,6 @@
 | `quantidade`   | 10                                                          |
 
 
-## Tabela `Pessoa_Atendida`
-
-📄 *Define os usuários que estão em situação de vulnerabilidade e recebem auxílio. Estende os dados de `Usuario`.*
-
-- **id**: Chave estrangeira para o usuário atendido
-- **servico_desejado**: Tipo de ajuda desejada
-- **observacoes**: Informações adicionais sobre a pessoa atendida
-
-| Campo              | Valor de Exemplo                                   |
-| ------------------ | -------------------------------------------------- |
-| `id_pessoa_atendida`               | 17 *(referência ao usuário correspondente)*        |
-| `servico_desejado` | `Abrigo e alimentação`                             |
-| `observacao`      | `Família com 3 crianças; sem acesso a transporte.` |
-
-
 ## Tabela `Distribuicao`
 
 📄 *Rastreia a destinação de doações para pessoas atendidas, incluindo quantidade e data da entrega.*
@@ -147,73 +132,6 @@
 | `qtd_destinada`         | 3                                                         |
 | `data_destinada`        | `2025-05-23`                                              |
 | `id_pessoa_atendida_fk` | 17 *(referência à pessoa atendida que receberá a doação)* |
-
-
-## Tabela `Categoria_Voluntario`
-📄 Armazena as categorias de atuação dos voluntários cadastrados no sistema. Permite classificar e organizar os tipos de ajuda oferecida, como Saúde, Educação, Assistência Social, entre outras.
-
-- **id_categoria_voluntario:** Identificador único da categoria
-- **descricao:** Descrição textual da área de atuação do voluntário
-
-| Campo                     | Valor de Exemplo     |
-| ------------------------- | -------------------- |
-| `id_categoria_voluntario` | 2                    |
-| `descricao`               | `Assistência Social` |
-
-
-## Tabela `Disponibilidade`
-📄 Define os períodos de disponibilidade dos voluntários para atuação no sistema. É usada para indicar em quais turnos ou horários os voluntários estão aptos a colaborar.
-
-- **id_disponibilidade:** Identificador único do período de disponibilidade
-- **descricao:** Descrição do período disponível (ex: Manhã, Tarde, Noite, Integral)
-
-| Campo                | Valor de Exemplo |
-| -------------------- | ---------------- |
-| `id_disponibilidade` | 3                |
-| `descricao`          | `Tarde`          |
-
-
-## Tabela `Voluntario`
-
-📄 *Perfil especializado do usuário que atua como voluntário no sistema, com informações sobre categoria e disponibilidade.*
-
-- **id_voluntario:** Identificador único do voluntário (referência direta ao Usuario)
-- **id_categoria_voluntario:** Chave estrangeira para a categoria de atuação do voluntário
-- **id_disponibilidade:** Chave estrangeira indicando o período em que o voluntário está disponível
-
-| Campo                     | Valor de Exemplo |
-| ------------------------- | ---------------- |
-| `id_voluntario`           | 12               |
-| `id_categoria_voluntario` | 1 *(Saúde)*   |
-| `id_disponibilidade`      | 2 *(Tarde)*      |
-
-
-## Tabela `Empresa_Parceira`
-
-📄 Armazena informações de empresas ou instituições parceiras que oferecem serviços ou recursos durante situações de crise. Cada empresa é representada por um usuário e está associada a uma categoria de atuação.
-
-- **id_empresa_parceira:** Identificador único da empresa parceira (também é um usuário)
-- ** id_categoria:** Chave estrangeira que indica a categoria principal de atuação da empresa (ex: alimentação, transporte, etc.)
-- **servico_oferecido:** Descrição textual do serviço ou apoio oferecido pela empresa
-
-| Campo                 | Valor de Exemplo            |
-| --------------------- | --------------------------- |
-| `id_empresa_parceira` | 15                          |
-| `id_categoria`        | 2 *(Transporte)*            |
-| `servico_oferecido`   | `Fornece vans para abrigos` |
-
-
-## Tabela `Especialidade`
-
-📄 *Define áreas de atuação para profissionais da saúde, como psicologia, enfermagem, etc.*
-
-- **id**: Identificador único da especialidade
-- **descricao**: Descrição da área de especialização
-
-| Campo       | Valor de Exemplo |
-| ----------- | ---------------- |
-| `id`        | 3                |
-| `descricao` | `Psicologia`     |
 
 
 ## Tabela `Feedbacks`
@@ -237,43 +155,11 @@
 | `id_usuario`    | 12 *(Usuário que avaliou)*                 |
 
 
-
-## Tabela `Profissional_Saude`
-
-📄 Armazena informações complementares dos usuários que atuam como profissionais de saúde na plataforma. Cada profissional está vinculado a uma especialidade e define se seu atendimento é presencial, remoto ou híbrido.
-
-- **id_profissional:** Identificador único do profissional (também é um Usuario)
-- **id_especialidade:** Chave estrangeira para a especialidade do profissional (ex: Psicologia, Enfermagem)
-
-| Campo                  | Valor de Exemplo |
-| ---------------------- | ---------------- |
-| `id_profissional`      | 8                |
-| `id_especialidade`     | 2 *(Psicologia)* |
-
-
-## Tabela `Mural_Emergencia`
-📄 Registra as mensagens publicadas por usuários no mural de emergência. Essas mensagens servem para relatar necessidades, emitir alertas ou fornecer informações importantes durante uma crise.
-
-- **id_mural:** Identificador único da publicação no mural
-- **id_usuario:** Chave estrangeira para o usuário que publicou a mensagem
-- **mensagem:** Conteúdo textual da mensagem publicada
-- **id_tipo_mural_emergencia:** Tipo da mensagem (ex: Alerta, Aviso, Informação)
-- **data_hora:** Data e hora da publicação da mensagem
-
-| Campo                      | Valor de Exemplo                        |
-| -------------------------- | --------------------------------------- |
-| `id_mural`                 | 6                                       |
-| `id_usuario`               | 12 *(João da Silva)*                    |
-| `mensagem`                 | `Família desabrigada precisa de roupas` |
-| `id_tipo_mural_emergencia` | 1 *(Alerta)*                            |
-| `data_hora`                | `2025-05-26 14:10:00`                   |
-
-
 ## Tabela `Registro_Evento`
 📄 Registra os eventos ocorridos no sistema, como doações realizadas, distribuições efetuadas, atendimentos prestados, entre outros. Cada registro está vinculado a um tipo de evento, a um usuário e armazena a data e a localização do ocorrido.
 
 - **id_registro_evento:** Identificador único do evento registrado
-- **descricao:** Descrição detalhada do que aconteceu no evento
+- **descricao:** Descrição detalhada do que aconteceu no evento ou do Mural
 - **data_hora:** Data e hora em que o evento ocorreu
 - **id_usuario:** Chave estrangeira do usuário responsável ou envolvido no evento
 - **localizacao:** Informação textual sobre onde o evento ocorreu
