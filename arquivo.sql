@@ -5,8 +5,8 @@ SET SERVEROUTPUT ON;
 -- Patricia Naomi Yamagishi RM552981
 
 -- Deletar tabelas caso já existam
-DROP TABLE T_Usuario CASCADE CONSTRAINTS;
 DROP TABLE T_Tipo_Usuario CASCADE CONSTRAINTS;
+DROP TABLE T_Usuario CASCADE CONSTRAINTS;
 DROP TABLE T_Endereco CASCADE CONSTRAINTS;
 DROP TABLE T_Categoria CASCADE CONSTRAINTS;
 DROP TABLE T_Abrigo CASCADE CONSTRAINTS;
@@ -23,6 +23,18 @@ CREATE TABLE T_Tipo_Usuario (
     descricao           VARCHAR2(50) NOT NULL UNIQUE
 );
 
+-- ENDERECO
+CREATE TABLE T_Endereco (
+    id_endereco     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    rua             VARCHAR2(100),
+    numero          VARCHAR2(100),
+    bairro          VARCHAR2(100),
+    cidade          VARCHAR2(100),
+    estado          VARCHAR2(100),
+    cep             VARCHAR2(10),
+    complemento     VARCHAR2(255)
+);
+
 -- USUARIO
 CREATE TABLE T_Usuario (
     id_usuario          INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -37,18 +49,6 @@ CREATE TABLE T_Usuario (
     status              NUMBER(1) DEFAULT 1,
     CONSTRAINT fk_usuario_tipo FOREIGN KEY (id_tipo_usuario) REFERENCES T_Tipo_Usuario(id_tipo_usuario),
     CONSTRAINT fk_usuario_endereco FOREIGN KEY (id_endereco) REFERENCES T_Endereco(id_endereco)
-);
-
--- ENDERECO
-CREATE TABLE T_Endereco (
-    id_endereco     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    rua             VARCHAR2(100),
-    numero          VARCHAR2(100),
-    bairro          VARCHAR2(100),
-    cidade          VARCHAR2(100),
-    estado          VARCHAR2(100),
-    cep             VARCHAR2(10),
-    complemento     VARCHAR2(255)
 );
 
 -- CATEGORIA
@@ -193,4 +193,1207 @@ INSERT INTO T_Registro_Evento (descricao, data_hora, id_usuario, localizacao, id
 INSERT INTO T_Registro_Evento (descricao, data_hora, id_usuario, localizacao, id_abrigo) VALUES ('Sessão de feedback com atendidos.', TO_TIMESTAMP('2025-05-06 13:10:00', 'YYYY-MM-DD HH24:MI:SS'), 6, '06006-000', 6);
 INSERT INTO T_Registro_Evento (descricao, data_hora, id_usuario, localizacao, id_abrigo) VALUES ('Evento de integração comunitária.', TO_TIMESTAMP('2025-05-07 15:55:00', 'YYYY-MM-DD HH24:MI:SS'), 7, '07007-000', 7);
 
+-- 2. Empacotamento de Objetos
+
+-- 1. T_Tipo_Usuario
+
+-- 1.1. Cabeçalho 
+CREATE OR REPLACE PACKAGE pkg_tipo_usuario AS
+    PROCEDURE inserir_tipo_usuario(p_descricao IN VARCHAR2);
+    PROCEDURE atualizar_tipo_usuario(p_id IN NUMBER, p_descricao IN VARCHAR2);
+    PROCEDURE excluir_tipo_usuario(p_id IN NUMBER);
+    PROCEDURE listar_tipo_usuario(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE buscar_tipo_usuario(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR);
+END pkg_tipo_usuario;
+
+-- 1.2. Corpo
+CREATE OR REPLACE PACKAGE BODY pkg_tipo_usuario AS
+
+    PROCEDURE inserir_tipo_usuario(p_descricao IN VARCHAR2) IS
+    BEGIN
+        INSERT INTO T_Tipo_Usuario (descricao)
+        VALUES (p_descricao);
+
+        COMMIT;
+    END inserir_tipo_usuario;
+
+
+    PROCEDURE atualizar_tipo_usuario(p_id IN NUMBER, p_descricao IN VARCHAR2) IS
+    BEGIN
+        UPDATE T_Tipo_Usuario
+        SET descricao = p_descricao
+        WHERE id_tipo_usuario = p_id;
+
+        COMMIT;
+    END atualizar_tipo_usuario;
+
+
+    PROCEDURE excluir_tipo_usuario(p_id IN NUMBER) IS
+    BEGIN
+        DELETE FROM T_Tipo_Usuario
+        WHERE id_tipo_usuario = p_id;
+
+        COMMIT;
+    END excluir_tipo_usuario;
+
+
+    PROCEDURE listar_tipo_usuario(p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT id_tipo_usuario, descricao
+            FROM T_Tipo_Usuario;
+    END listar_tipo_usuario;
+
+
+    PROCEDURE buscar_tipo_usuario(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT id_tipo_usuario, descricao
+            FROM T_Tipo_Usuario
+            WHERE id_tipo_usuario = p_id;
+    END buscar_tipo_usuario;
+
+END pkg_tipo_usuario;
+
+-- Testes das Procedures T_Tipo_Usuario
+
+-- 1.3. Inserir
+BEGIN
+    pkg_tipo_usuario.inserir_tipo_usuario('Administrador');
+    pkg_tipo_usuario.inserir_tipo_usuario('Voluntário');
+    pkg_tipo_usuario.inserir_tipo_usuario('Profissional de Saúde');
+    pkg_tipo_usuario.inserir_tipo_usuario('Pessoa Atendida');
+    pkg_tipo_usuario.inserir_tipo_usuario('Empresa Parceira');
+    pkg_tipo_usuario.inserir_tipo_usuario('Médico');
+    pkg_tipo_usuario.inserir_tipo_usuario('Comum');
+END;
+
+-- 1.4. Atualizar
+BEGIN
+    pkg_tipo_usuario.atualizar_tipo_usuario(1, 'Administrador Master');
+END;
+
+-- 1.5. Listar todos
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id NUMBER;
+    v_descricao VARCHAR2(50);
+BEGIN
+    pkg_tipo_usuario.listar_tipo_usuario(v_cursor);
+
+    LOOP
+        FETCH v_cursor INTO v_id, v_descricao;
+        EXIT WHEN v_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id || ', Descrição: ' || v_descricao);
+    END LOOP;
+
+    CLOSE v_cursor;
+END;
+
+-- 1.6. Listar por ID
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id NUMBER;
+    v_descricao VARCHAR2(50);
+BEGIN
+    pkg_tipo_usuario.buscar_tipo_usuario(1, v_cursor);
+
+    LOOP
+        FETCH v_cursor INTO v_id, v_descricao;
+        EXIT WHEN v_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id || ', Descrição: ' || v_descricao);
+    END LOOP;
+
+    CLOSE v_cursor;
+END;
+
+-- 1.7. Excluir
+BEGIN
+    pkg_tipo_usuario.excluir_tipo_usuario(7);
+END;
+
+-- 2. T_Endereco
+
+-- 2.1. Cabeçalho 
+CREATE OR REPLACE PACKAGE pkg_endereco AS
+    PROCEDURE inserir_endereco(
+        p_rua IN VARCHAR2,
+        p_numero IN VARCHAR2,
+        p_bairro IN VARCHAR2,
+        p_cidade IN VARCHAR2,
+        p_estado IN VARCHAR2,
+        p_cep IN VARCHAR2,
+        p_complemento IN VARCHAR2
+    );
+
+    PROCEDURE atualizar_endereco(
+        p_id IN NUMBER,
+        p_rua IN VARCHAR2,
+        p_numero IN VARCHAR2,
+        p_bairro IN VARCHAR2,
+        p_cidade IN VARCHAR2,
+        p_estado IN VARCHAR2,
+        p_cep IN VARCHAR2,
+        p_complemento IN VARCHAR2
+    );
+
+    PROCEDURE excluir_endereco(p_id IN NUMBER);
+
+    PROCEDURE listar_endereco(p_cursor OUT SYS_REFCURSOR);
+
+    PROCEDURE buscar_endereco(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR);
+END pkg_endereco;
+
+-- 2.2. Corpo
+CREATE OR REPLACE PACKAGE BODY pkg_endereco AS
+
+    PROCEDURE inserir_endereco(
+        p_rua IN VARCHAR2,
+        p_numero IN VARCHAR2,
+        p_bairro IN VARCHAR2,
+        p_cidade IN VARCHAR2,
+        p_estado IN VARCHAR2,
+        p_cep IN VARCHAR2,
+        p_complemento IN VARCHAR2
+    ) IS
+    BEGIN
+        INSERT INTO T_Endereco (rua, numero, bairro, cidade, estado, cep, complemento)
+        VALUES (p_rua, p_numero, p_bairro, p_cidade, p_estado, p_cep, p_complemento);
+
+        COMMIT;
+    END inserir_endereco;
+
+
+    PROCEDURE atualizar_endereco(
+        p_id IN NUMBER,
+        p_rua IN VARCHAR2,
+        p_numero IN VARCHAR2,
+        p_bairro IN VARCHAR2,
+        p_cidade IN VARCHAR2,
+        p_estado IN VARCHAR2,
+        p_cep IN VARCHAR2,
+        p_complemento IN VARCHAR2
+    ) IS
+    BEGIN
+        UPDATE T_Endereco
+        SET rua = p_rua,
+            numero = p_numero,
+            bairro = p_bairro,
+            cidade = p_cidade,
+            estado = p_estado,
+            cep = p_cep,
+            complemento = p_complemento
+        WHERE id_endereco = p_id;
+
+        COMMIT;
+    END atualizar_endereco;
+
+
+    PROCEDURE excluir_endereco(p_id IN NUMBER) IS
+    BEGIN
+        DELETE FROM T_Endereco
+        WHERE id_endereco = p_id;
+
+        COMMIT;
+    END excluir_endereco;
+
+
+    PROCEDURE listar_endereco(p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT id_endereco, rua, numero, bairro, cidade, estado, cep, complemento
+            FROM T_Endereco;
+    END listar_endereco;
+
+
+    PROCEDURE buscar_endereco(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT id_endereco, rua, numero, bairro, cidade, estado, cep, complemento
+            FROM T_Endereco
+            WHERE id_endereco = p_id;
+    END buscar_endereco;
+
+END pkg_endereco;
+
+-- Testes das Procedures T_Endereco
+
+-- 2.3. Inserir
+BEGIN
+    pkg_endereco.inserir_endereco(
+        'Rua das Flores', '100', 'Centro', 'São Paulo', 'SP', '01001-000', 'Apto 101'
+    );
+    pkg_endereco.inserir_endereco(
+        'Av. Brasil', '2000', 'Jardins', 'São Paulo', 'SP', '01430-000', NULL
+    );
+END;
+
+-- 2.4. Atualizar
+BEGIN
+    pkg_endereco.atualizar_endereco(
+        p_id => 1,
+        p_rua => 'Rua das Palmeiras',
+        p_numero => '150',
+        p_bairro => 'Centro',
+        p_cidade => 'São Paulo',
+        p_estado => 'SP',
+        p_cep => '01002-000',
+        p_complemento => 'Apto 202'
+    );
+END;
+
+-- 2.5. Listar todos
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id NUMBER;
+    v_rua VARCHAR2(100);
+    v_numero VARCHAR2(100);
+    v_bairro VARCHAR2(100);
+    v_cidade VARCHAR2(100);
+    v_estado VARCHAR2(100);
+    v_cep VARCHAR2(10);
+    v_complemento VARCHAR2(255);
+BEGIN
+    pkg_endereco.listar_endereco(v_cursor);
+
+    LOOP
+        FETCH v_cursor INTO v_id, v_rua, v_numero, v_bairro, v_cidade, v_estado, v_cep, v_complemento;
+        EXIT WHEN v_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE(
+            'ID: ' || v_id || 
+            ', Rua: ' || v_rua ||
+            ', Numero: ' || v_numero ||
+            ', Bairro: ' || v_bairro ||
+            ', Cidade: ' || v_cidade ||
+            ', Estado: ' || v_estado ||
+            ', CEP: ' || v_cep ||
+            ', Complemento: ' || NVL(v_complemento, 'N/A')
+        );
+    END LOOP;
+
+    CLOSE v_cursor;
+END;
+
+-- 2.6. Listar por ID
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id NUMBER;
+    v_rua VARCHAR2(100);
+    v_numero VARCHAR2(100);
+    v_bairro VARCHAR2(100);
+    v_cidade VARCHAR2(100);
+    v_estado VARCHAR2(100);
+    v_cep VARCHAR2(10);
+    v_complemento VARCHAR2(255);
+BEGIN
+    pkg_endereco.buscar_endereco(1, v_cursor);
+
+    LOOP
+        FETCH v_cursor INTO v_id, v_rua, v_numero, v_bairro, v_cidade, v_estado, v_cep, v_complemento;
+        EXIT WHEN v_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE(
+            'ID: ' || v_id || 
+            ', Rua: ' || v_rua ||
+            ', Numero: ' || v_numero ||
+            ', Bairro: ' || v_bairro ||
+            ', Cidade: ' || v_cidade ||
+            ', Estado: ' || v_estado ||
+            ', CEP: ' || v_cep ||
+            ', Complemento: ' || NVL(v_complemento, 'N/A')
+        );
+    END LOOP;
+
+    CLOSE v_cursor;
+END;
+
+-- 2.7. Excluir
+BEGIN
+    pkg_endereco.excluir_endereco(2);
+END;
+
+-- 3. T_Usuario
+
+-- 3.1. Cabeçalho 
+CREATE OR REPLACE PACKAGE pkg_usuario AS
+    PROCEDURE inserir_usuario(
+        p_nome IN VARCHAR2,
+        p_email IN VARCHAR2,
+        p_senha IN VARCHAR2,
+        p_id_tipo_usuario IN NUMBER,
+        p_id_endereco IN NUMBER
+    );
+
+    PROCEDURE atualizar_usuario(
+        p_id IN NUMBER,
+        p_nome IN VARCHAR2,
+        p_email IN VARCHAR2,
+        p_senha IN VARCHAR2,
+        p_id_tipo_usuario IN NUMBER,
+        p_id_endereco IN NUMBER
+    );
+
+    PROCEDURE excluir_usuario(p_id IN NUMBER);
+
+    PROCEDURE listar_usuarios(p_cursor OUT SYS_REFCURSOR);
+
+    PROCEDURE buscar_usuario(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR);
+END pkg_usuario;
+
+-- 3.2. Corpo 
+CREATE OR REPLACE PACKAGE BODY pkg_usuario AS
+
+    PROCEDURE inserir_usuario(
+        p_nome IN VARCHAR2,
+        p_email IN VARCHAR2,
+        p_senha IN VARCHAR2,
+        p_id_tipo_usuario IN NUMBER,
+        p_id_endereco IN NUMBER
+    ) IS
+    BEGIN
+        INSERT INTO T_Usuario (nome, email, senha, id_tipo_usuario, id_endereco)
+        VALUES (p_nome, p_email, p_senha, p_id_tipo_usuario, p_id_endereco);
+
+        COMMIT;
+    END inserir_usuario;
+
+
+    PROCEDURE atualizar_usuario(
+        p_id IN NUMBER,
+        p_nome IN VARCHAR2,
+        p_email IN VARCHAR2,
+        p_senha IN VARCHAR2,
+        p_id_tipo_usuario IN NUMBER,
+        p_id_endereco IN NUMBER
+    ) IS
+    BEGIN
+        UPDATE T_Usuario
+        SET nome = p_nome,
+            email = p_email,
+            senha = p_senha,
+            id_tipo_usuario = p_id_tipo_usuario,
+            id_endereco = p_id_endereco
+        WHERE id_usuario = p_id;
+
+        COMMIT;
+    END atualizar_usuario;
+
+
+    PROCEDURE excluir_usuario(p_id IN NUMBER) IS
+    BEGIN
+        DELETE FROM T_Usuario
+        WHERE id_usuario = p_id;
+
+        COMMIT;
+    END excluir_usuario;
+
+
+    PROCEDURE listar_usuarios(p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT id_usuario, nome, email, senha, id_tipo_usuario, id_endereco
+            FROM T_Usuario;
+    END listar_usuarios;
+
+
+    PROCEDURE buscar_usuario(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT id_usuario, nome, email, senha, id_tipo_usuario, id_endereco
+            FROM T_Usuario
+            WHERE id_usuario = p_id;
+    END buscar_usuario;
+
+END pkg_usuario;
+
+-- Testes das Procedures T_Usuario
+
+-- 3.3. Inserir
+BEGIN
+    pkg_usuario.inserir_usuario(
+        'João Silva', 'joao@email.com', 'senha123', 1, 1
+    );
+    pkg_usuario.inserir_usuario(
+        'Maria Souza', 'maria@email.com', 'senha456', 2, 2
+    );
+END;
+
+-- 3.4. Atualizar
+BEGIN
+    pkg_usuario.atualizar_usuario(
+        p_id => 1,
+        p_nome => 'João Pedro Silva',
+        p_email => 'joao.pedro@email.com',
+        p_senha => 'novaSenha123',
+        p_id_tipo_usuario => 1,
+        p_id_endereco => 1
+    );
+END;
+
+-- 3.5. Listar todos
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id NUMBER;
+    v_nome VARCHAR2(100);
+    v_email VARCHAR2(100);
+    v_senha VARCHAR2(100);
+    v_id_tipo NUMBER;
+    v_id_endereco NUMBER;
+BEGIN
+    pkg_usuario.listar_usuarios(v_cursor);
+
+    LOOP
+        FETCH v_cursor INTO v_id, v_nome, v_email, v_senha, v_id_tipo, v_id_endereco;
+        EXIT WHEN v_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE(
+            'ID: ' || v_id || 
+            ', Nome: ' || v_nome ||
+            ', Email: ' || v_email ||
+            ', Senha: ' || v_senha ||
+            ', ID Tipo Usuário: ' || v_id_tipo ||
+            ', ID Endereço: ' || v_id_endereco
+        );
+    END LOOP;
+
+    CLOSE v_cursor;
+END;
+
+-- 3.6. Listar por ID
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id NUMBER;
+    v_nome VARCHAR2(100);
+    v_email VARCHAR2(100);
+    v_senha VARCHAR2(100);
+    v_id_tipo NUMBER;
+    v_id_endereco NUMBER;
+BEGIN
+    pkg_usuario.buscar_usuario(1, v_cursor);
+
+    LOOP
+        FETCH v_cursor INTO v_id, v_nome, v_email, v_senha, v_id_tipo, v_id_endereco;
+        EXIT WHEN v_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE(
+            'ID: ' || v_id || 
+            ', Nome: ' || v_nome ||
+            ', Email: ' || v_email ||
+            ', Senha: ' || v_senha ||
+            ', ID Tipo Usuário: ' || v_id_tipo ||
+            ', ID Endereço: ' || v_id_endereco
+        );
+    END LOOP;
+
+    CLOSE v_cursor;
+END;
+
+-- 3.7. Excluir
+BEGIN
+    pkg_usuario.excluir_usuario(2);
+END;
+
+-- 4. T_Categoria
+
+-- 4.1. Cabeçalho
+CREATE OR REPLACE PACKAGE pkg_categoria AS
+    PROCEDURE inserir_categoria(p_descricao IN VARCHAR2);
+    PROCEDURE atualizar_categoria(p_id IN NUMBER, p_descricao IN VARCHAR2);
+    PROCEDURE excluir_categoria(p_id IN NUMBER);
+    PROCEDURE listar_categorias(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE buscar_categoria(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR);
+END pkg_categoria;
+
+-- 4.2. Corpo
+CREATE OR REPLACE PACKAGE BODY pkg_categoria AS
+
+    PROCEDURE inserir_categoria(p_descricao IN VARCHAR2) IS
+    BEGIN
+        INSERT INTO T_Categoria (descricao) VALUES (p_descricao);
+        COMMIT;
+    END inserir_categoria;
+
+    PROCEDURE atualizar_categoria(p_id IN NUMBER, p_descricao IN VARCHAR2) IS
+    BEGIN
+        UPDATE T_Categoria
+        SET descricao = p_descricao
+        WHERE id_categoria = p_id;
+        COMMIT;
+    END atualizar_categoria;
+
+    PROCEDURE excluir_categoria(p_id IN NUMBER) IS
+    BEGIN
+        DELETE FROM T_Categoria WHERE id_categoria = p_id;
+        COMMIT;
+    END excluir_categoria;
+
+    PROCEDURE listar_categorias(p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT id_categoria, descricao FROM T_Categoria ORDER BY id_categoria;
+    END listar_categorias;
+
+    PROCEDURE buscar_categoria(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT id_categoria, descricao FROM T_Categoria WHERE id_categoria = p_id;
+    END buscar_categoria;
+
+END pkg_categoria;
+
+-- 4.3. Inserir 
+BEGIN
+    pkg_categoria.inserir_categoria('Alimentos');
+    pkg_categoria.inserir_categoria('Roupas');
+    pkg_categoria.inserir_categoria('Higiene');
+    pkg_categoria.inserir_categoria('Brinquedos');
+    pkg_categoria.inserir_categoria('Móveis');
+    pkg_categoria.inserir_categoria('Eletrônicos');
+    pkg_categoria.inserir_categoria('Medicamentos');
+END;
+
+
+-- 4.4. Atualizar 
+BEGIN
+    pkg_categoria.atualizar_categoria(1, 'Alimentos Básicos');
+END;
+
+-- 4.5. Listar todos
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id_categoria NUMBER;
+    v_descricao VARCHAR2(50);
+BEGIN
+    pkg_categoria.listar_categorias(v_cursor);
+
+    LOOP
+        FETCH v_cursor INTO v_id_categoria, v_descricao;
+        EXIT WHEN v_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_categoria || ' - Descrição: ' || v_descricao);
+    END LOOP;
+
+    CLOSE v_cursor;
+END;
+
+-- 4.6. Listar por ID
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id_categoria NUMBER;
+    v_descricao VARCHAR2(50);
+BEGIN
+    pkg_categoria.buscar_categoria(2, v_cursor);
+
+    LOOP
+        FETCH v_cursor INTO v_id_categoria, v_descricao;
+        EXIT WHEN v_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_categoria || ' - Descrição: ' || v_descricao);
+    END LOOP;
+
+    CLOSE v_cursor;
+END;
+
+-- 4.7. Excluir
+BEGIN
+    pkg_categoria.excluir_categoria(7);
+END;
+
+-- 5. T_Abrigo
+
+-- 5.1. Cabeçalho
+CREATE OR REPLACE PACKAGE pkg_abrigo AS
+    PROCEDURE inserir_abrigo(p_capacidade_total IN NUMBER, p_ocupacao_atual IN NUMBER, p_descricao IN VARCHAR2);
+    PROCEDURE atualizar_abrigo(p_id IN NUMBER, p_capacidade_total IN NUMBER, p_ocupacao_atual IN NUMBER, p_descricao IN VARCHAR2);
+    PROCEDURE excluir_abrigo(p_id IN NUMBER);
+    PROCEDURE listar_abrigos(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE buscar_abrigo(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR);
+END pkg_abrigo;
+
+-- .5.2. Corpo
+CREATE OR REPLACE PACKAGE BODY pkg_abrigo AS
+
+    PROCEDURE inserir_abrigo(p_capacidade_total IN NUMBER, p_ocupacao_atual IN NUMBER, p_descricao IN VARCHAR2) IS
+    BEGIN
+        INSERT INTO T_Abrigo (capacidade_total, ocupacao_atual, descricao)
+        VALUES (p_capacidade_total, p_ocupacao_atual, p_descricao);
+        COMMIT;
+    END inserir_abrigo;
+
+    PROCEDURE atualizar_abrigo(p_id IN NUMBER, p_capacidade_total IN NUMBER, p_ocupacao_atual IN NUMBER, p_descricao IN VARCHAR2) IS
+    BEGIN
+        UPDATE T_Abrigo
+        SET capacidade_total = p_capacidade_total,
+            ocupacao_atual = p_ocupacao_atual,
+            descricao = p_descricao
+        WHERE id_abrigo = p_id;
+        COMMIT;
+    END atualizar_abrigo;
+
+    PROCEDURE excluir_abrigo(p_id IN NUMBER) IS
+    BEGIN
+        DELETE FROM T_Abrigo WHERE id_abrigo = p_id;
+        COMMIT;
+    END excluir_abrigo;
+
+    PROCEDURE listar_abrigos(p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT id_abrigo, capacidade_total, ocupacao_atual, descricao FROM T_Abrigo ORDER BY id_abrigo;
+    END listar_abrigos;
+
+    PROCEDURE buscar_abrigo(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR
+            SELECT id_abrigo, capacidade_total, ocupacao_atual, descricao FROM T_Abrigo WHERE id_abrigo = p_id;
+    END buscar_abrigo;
+
+END pkg_abrigo;
+
+-- 5.3. Inserir
+BEGIN
+    pkg_abrigo.inserir_abrigo(100, 45, 'Abrigo Central');
+    pkg_abrigo.inserir_abrigo(50, 20, 'Abrigo Sul');
+    pkg_abrigo.inserir_abrigo(75, 60, 'Abrigo Norte');
+    pkg_abrigo.inserir_abrigo(120, 110, 'Abrigo Leste');
+    pkg_abrigo.inserir_abrigo(90, 50, 'Abrigo Oeste');
+    pkg_abrigo.inserir_abrigo(60, 40, 'Abrigo Zona Rural');
+    pkg_abrigo.inserir_abrigo(80, 70, 'Abrigo Centro Histórico');
+END;
+
+-- 5.4. atualizar
+BEGIN
+    pkg_abrigo.atualizar_abrigo(1, 110, 55, 'Abrigo Central Atualizado');
+END;
+
+-- 5.5. Listar todos
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id_abrigo NUMBER;
+    v_capacidade_total NUMBER;
+    v_ocupacao_atual NUMBER;
+    v_descricao VARCHAR2(200);
+BEGIN
+    pkg_abrigo.listar_abrigos(v_cursor);
+
+    LOOP
+        FETCH v_cursor INTO v_id_abrigo, v_capacidade_total, v_ocupacao_atual, v_descricao;
+        EXIT WHEN v_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_abrigo ||
+                             ', Capacidade: ' || v_capacidade_total ||
+                             ', Ocupação Atual: ' || v_ocupacao_atual ||
+                             ', Descrição: ' || v_descricao);
+    END LOOP;
+
+    CLOSE v_cursor;
+END;
+
+-- 5.6. Listar por ID
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id_abrigo NUMBER;
+    v_capacidade_total NUMBER;
+    v_ocupacao_atual NUMBER;
+    v_descricao VARCHAR2(200);
+BEGIN
+    pkg_abrigo.buscar_abrigo(3, v_cursor);
+
+    LOOP
+        FETCH v_cursor INTO v_id_abrigo, v_capacidade_total, v_ocupacao_atual, v_descricao;
+        EXIT WHEN v_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_abrigo ||
+                             ', Capacidade: ' || v_capacidade_total ||
+                             ', Ocupação Atual: ' || v_ocupacao_atual ||
+                             ', Descrição: ' || v_descricao);
+    END LOOP;
+
+    CLOSE v_cursor;
+END;
+
+-- 5.7. Excluir
+BEGIN
+    pkg_abrigo.excluir_abrigo(7);
+END;
+
+-- 6. T_Doacao
+
+-- 6.1. Cabeçalho
+CREATE OR REPLACE PACKAGE pkg_doacao AS
+    PROCEDURE inserir_doacao(p_id_abrigo IN NUMBER, p_descricao IN VARCHAR2, p_id_categoria IN NUMBER, p_quantidade IN NUMBER);
+    PROCEDURE atualizar_doacao(p_id IN NUMBER, p_id_abrigo IN NUMBER, p_descricao IN VARCHAR2, p_id_categoria IN NUMBER, p_quantidade IN NUMBER);
+    PROCEDURE excluir_doacao(p_id IN NUMBER);
+    PROCEDURE listar_doacoes(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE buscar_doacao(p_id_doacao IN NUMBER, p_cursor OUT SYS_REFCURSOR);
+END pkg_doacao;
+
+-- 6.2. Corpo
+CREATE OR REPLACE PACKAGE BODY pkg_doacao AS
+
+    PROCEDURE inserir_doacao(p_id_abrigo IN NUMBER, p_descricao IN VARCHAR2, p_id_categoria IN NUMBER, p_quantidade IN NUMBER) IS
+    BEGIN
+        INSERT INTO T_Doacao (id_abrigo, descricao, id_categoria, quantidade)
+        VALUES (p_id_abrigo, p_descricao, p_id_categoria, p_quantidade);
+        COMMIT;
+    END inserir_doacao;
+
+    PROCEDURE atualizar_doacao(p_id IN NUMBER, p_id_abrigo IN NUMBER, p_descricao IN VARCHAR2, p_id_categoria IN NUMBER, p_quantidade IN NUMBER) IS
+    BEGIN
+        UPDATE T_Doacao
+        SET id_abrigo = p_id_abrigo,
+            descricao = p_descricao,
+            id_categoria = p_id_categoria,
+            quantidade = p_quantidade
+        WHERE id_doacao = p_id;
+        COMMIT;
+    END atualizar_doacao;
+
+    PROCEDURE excluir_doacao(p_id IN NUMBER) IS
+    BEGIN
+        DELETE FROM T_Doacao WHERE id_doacao = p_id;
+        COMMIT;
+    END excluir_doacao;
+
+    PROCEDURE listar_doacoes(p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR SELECT id_doacao, id_abrigo, descricao, id_categoria, quantidade FROM T_Doacao;
+    END listar_doacoes;
+
+    PROCEDURE buscar_doacao(p_id_doacao IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR 
+            SELECT id_doacao, id_abrigo, descricao, id_categoria, quantidade
+            FROM T_Doacao
+            WHERE id_doacao = p_id_doacao;
+    END buscar_doacao;
+
+END pkg_doacao;
+
+-- 6.3. Inserir
+BEGIN
+    pkg_doacao.inserir_doacao(1, 'Doação de alimentos', 1, 100);
+    pkg_doacao.inserir_doacao(2, 'Doação de roupas', 2, 50);
+    pkg_doacao.inserir_doacao(3, 'Doação de produtos de higiene', 3, 75);
+    pkg_doacao.inserir_doacao(4, 'Doação de brinquedos', 4, 30);
+    pkg_doacao.inserir_doacao(5, 'Doação de cobertores', 5, 40);
+    pkg_doacao.inserir_doacao(1, 'Doação de material escolar', 6, 60);
+    pkg_doacao.inserir_doacao(2, 'Doação de medicamentos', 7, 20);
+END;
+
+-- 6.4. Atualizar
+BEGIN
+    pkg_doacao.atualizar_doacao(1, 1, 'Doação de alimentos perecíveis', 1, 120);
+END;
+
+-- 6.5. Listar todos
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id_doacao NUMBER;
+    v_id_abrigo NUMBER;
+    v_descricao VARCHAR2(200);
+    v_id_categoria NUMBER;
+    v_quantidade NUMBER;
+BEGIN
+    pkg_doacao.listar_doacoes(v_cursor);
+
+    LOOP
+        FETCH v_cursor INTO v_id_doacao, v_id_abrigo, v_descricao, v_id_categoria, v_quantidade;
+        EXIT WHEN v_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_doacao || 
+                             ', Abrigo: ' || v_id_abrigo ||
+                             ', Descrição: ' || v_descricao ||
+                             ', Categoria: ' || v_id_categoria ||
+                             ', Quantidade: ' || v_quantidade);
+    END LOOP;
+
+    CLOSE v_cursor;
+END;
+
+-- 6.6. Listar por ID
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id_doacao NUMBER;
+    v_id_abrigo NUMBER;
+    v_descricao VARCHAR2(200);
+    v_id_categoria NUMBER;
+    v_quantidade NUMBER;
+BEGIN
+    pkg_doacao.buscar_doacao(3, v_cursor);
+
+    LOOP
+        FETCH v_cursor INTO v_id_doacao, v_id_abrigo, v_descricao, v_id_categoria, v_quantidade;
+        EXIT WHEN v_cursor%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_doacao || 
+                             ', Abrigo: ' || v_id_abrigo ||
+                             ', Descrição: ' || v_descricao ||
+                             ', Categoria: ' || v_id_categoria ||
+                             ', Quantidade: ' || v_quantidade);
+    END LOOP;
+
+    CLOSE v_cursor;
+END;
+
+-- 6.7. Excluir
+BEGIN
+    pkg_doacao.excluir_doacao(7);
+END;
+
+-- 7. T_Distribuicao
+
+-- 7.1. Cabeçalho
+CREATE OR REPLACE PACKAGE pkg_distribuicao AS
+    PROCEDURE inserir_distribuicao(p_id_doacao IN NUMBER, p_qtd_destinada IN NUMBER, p_data_destinada IN TIMESTAMP, p_id_pessoa_atendida IN NUMBER);
+    PROCEDURE atualizar_distribuicao(p_id IN NUMBER, p_id_doacao IN NUMBER, p_qtd_destinada IN NUMBER, p_data_destinada IN TIMESTAMP, p_id_pessoa_atendida IN NUMBER);
+    PROCEDURE excluir_distribuicao(p_id IN NUMBER);
+    PROCEDURE listar_distribuicoes(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE buscar_distribuicao(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR);
+END pkg_distribuicao;
+
+-- 7.2. Corpo
+CREATE OR REPLACE PACKAGE BODY pkg_distribuicao AS
+
+    PROCEDURE inserir_distribuicao(p_id_doacao IN NUMBER, p_qtd_destinada IN NUMBER, p_data_destinada IN TIMESTAMP, p_id_pessoa_atendida IN NUMBER) IS
+    BEGIN
+        INSERT INTO T_Distribuicao(id_doacao, qtd_destinada, data_destinada, id_pessoa_atendida)
+        VALUES(p_id_doacao, p_qtd_destinada, p_data_destinada, p_id_pessoa_atendida);
+        COMMIT;
+    END inserir_distribuicao;
+
+    PROCEDURE atualizar_distribuicao(p_id IN NUMBER, p_id_doacao IN NUMBER, p_qtd_destinada IN NUMBER, p_data_destinada IN TIMESTAMP, p_id_pessoa_atendida IN NUMBER) IS
+    BEGIN
+        UPDATE T_Distribuicao
+        SET id_doacao = p_id_doacao,
+            qtd_destinada = p_qtd_destinada,
+            data_destinada = p_data_destinada,
+            id_pessoa_atendida = p_id_pessoa_atendida
+        WHERE id_distribuicao = p_id;
+        COMMIT;
+    END atualizar_distribuicao;
+
+    PROCEDURE excluir_distribuicao(p_id IN NUMBER) IS
+    BEGIN
+        DELETE FROM T_Distribuicao WHERE id_distribuicao = p_id;
+        COMMIT;
+    END excluir_distribuicao;
+
+    PROCEDURE listar_distribuicoes(p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR SELECT * FROM T_Distribuicao;
+    END listar_distribuicoes;
+
+    PROCEDURE buscar_distribuicao(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR SELECT * FROM T_Distribuicao WHERE id_distribuicao = p_id;
+    END buscar_distribuicao;
+
+END pkg_distribuicao;
+
+-- 7.3. Inserir
+BEGIN
+    pkg_distribuicao.inserir_distribuicao(1, 20, TO_TIMESTAMP('2025-05-10 10:00:00', 'YYYY-MM-DD HH24:MI:SS'), 1);
+    pkg_distribuicao.inserir_distribuicao(2, 15, TO_TIMESTAMP('2025-05-11 11:30:00', 'YYYY-MM-DD HH24:MI:SS'), 2);
+    pkg_distribuicao.inserir_distribuicao(3, 25, TO_TIMESTAMP('2025-05-12 14:00:00', 'YYYY-MM-DD HH24:MI:SS'), 3);
+    pkg_distribuicao.inserir_distribuicao(4, 10, TO_TIMESTAMP('2025-05-13 09:45:00', 'YYYY-MM-DD HH24:MI:SS'), 4);
+    pkg_distribuicao.inserir_distribuicao(5, 30, TO_TIMESTAMP('2025-05-14 16:20:00', 'YYYY-MM-DD HH24:MI:SS'), 5);
+    pkg_distribuicao.inserir_distribuicao(1, 5,  TO_TIMESTAMP('2025-05-15 12:10:00', 'YYYY-MM-DD HH24:MI:SS'), 6);
+    pkg_distribuicao.inserir_distribuicao(2, 18, TO_TIMESTAMP('2025-05-16 15:55:00', 'YYYY-MM-DD HH24:MI:SS'), 7);
+END;
+
+-- 7.4. Atualizar
+BEGIN
+    pkg_distribuicao.atualizar_distribuicao(1, 1, 22, TO_TIMESTAMP('2025-05-10 11:00:00', 'YYYY-MM-DD HH24:MI:SS'), 1);
+END;
+
+-- 7.5. Listar todos
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id_distribuicao NUMBER;
+    v_id_doacao NUMBER;
+    v_qtd_destinada NUMBER;
+    v_data_destinada TIMESTAMP;
+    v_id_pessoa_atendida NUMBER;
+BEGIN
+    pkg_distribuicao.listar_distribuicoes(v_cursor);
+    LOOP
+        FETCH v_cursor INTO v_id_distribuicao, v_id_doacao, v_qtd_destinada, v_data_destinada, v_id_pessoa_atendida;
+        EXIT WHEN v_cursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_distribuicao || ', Doacao: ' || v_id_doacao || ', Quantidade: ' || v_qtd_destinada || ', Data: ' || TO_CHAR(v_data_destinada, 'YYYY-MM-DD HH24:MI:SS') || ', Pessoa: ' || v_id_pessoa_atendida);
+    END LOOP;
+    CLOSE v_cursor;
+END;
+
+-- 7.6. Listar por ID
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id_distribuicao NUMBER;
+    v_id_doacao NUMBER;
+    v_qtd_destinada NUMBER;
+    v_data_destinada TIMESTAMP;
+    v_id_pessoa_atendida NUMBER;
+BEGIN
+    pkg_distribuicao.buscar_distribuicao(3, v_cursor);
+    LOOP
+        FETCH v_cursor INTO v_id_distribuicao, v_id_doacao, v_qtd_destinada, v_data_destinada, v_id_pessoa_atendida;
+        EXIT WHEN v_cursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_distribuicao || ', Doacao: ' || v_id_doacao || ', Quantidade: ' || v_qtd_destinada || ', Data: ' || TO_CHAR(v_data_destinada, 'YYYY-MM-DD HH24:MI:SS') || ', Pessoa: ' || v_id_pessoa_atendida);
+    END LOOP;
+    CLOSE v_cursor;
+END;
+
+-- 7.7. Excluir
+BEGIN
+    pkg_distribuicao.excluir_distribuicao(7);
+END;
+
+-- 8. T_Feedbacks
+
+-- 8.1. Cabeçalho
+CREATE OR REPLACE PACKAGE pkg_feedback AS
+    PROCEDURE inserir_feedback(p_id_usuario IN NUMBER, p_comentario IN VARCHAR2, p_data_hora IN TIMESTAMP);
+    PROCEDURE atualizar_feedback(p_id IN NUMBER, p_id_usuario IN NUMBER, p_comentario IN VARCHAR2, p_data_hora IN TIMESTAMP);
+    PROCEDURE excluir_feedback(p_id IN NUMBER);
+    PROCEDURE listar_feedbacks(p_cursor OUT SYS_REFCURSOR);
+    PROCEDURE buscar_feedback(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR);
+END pkg_feedback;
+
+-- 8.2. Corpo
+CREATE OR REPLACE PACKAGE BODY pkg_feedback AS
+
+    PROCEDURE inserir_feedback(p_id_usuario IN NUMBER, p_comentario IN VARCHAR2, p_data_hora IN TIMESTAMP) IS
+    BEGIN
+        INSERT INTO T_Feedback(id_usuario, comentario, data_hora)
+        VALUES(p_id_usuario, p_comentario, p_data_hora);
+        COMMIT;
+    END inserir_feedback;
+
+    PROCEDURE atualizar_feedback(p_id IN NUMBER, p_id_usuario IN NUMBER, p_comentario IN VARCHAR2, p_data_hora IN TIMESTAMP) IS
+    BEGIN
+        UPDATE T_Feedback
+        SET id_usuario = p_id_usuario,
+            comentario = p_comentario,
+            data_hora = p_data_hora
+        WHERE id_feedback = p_id;
+        COMMIT;
+    END atualizar_feedback;
+
+    PROCEDURE excluir_feedback(p_id IN NUMBER) IS
+    BEGIN
+        DELETE FROM T_Feedback WHERE id_feedback = p_id;
+        COMMIT;
+    END excluir_feedback;
+
+    PROCEDURE listar_feedbacks(p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR SELECT * FROM T_Feedback;
+    END listar_feedbacks;
+
+    PROCEDURE buscar_feedback(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR SELECT * FROM T_Feedback WHERE id_feedback = p_id;
+    END buscar_feedback;
+
+END pkg_feedback;
+
+-- 8.3. Inserir
+BEGIN
+    pkg_feedback.inserir_feedback(1, 'Ótimo atendimento, muito satisfeito.', TO_TIMESTAMP('2025-05-01 10:00:00', 'YYYY-MM-DD HH24:MI:SS'));
+    pkg_feedback.inserir_feedback(2, 'Poderia melhorar o tempo de resposta.', TO_TIMESTAMP('2025-05-02 11:15:00', 'YYYY-MM-DD HH24:MI:SS'));
+    pkg_feedback.inserir_feedback(3, 'Equipe muito prestativa.', TO_TIMESTAMP('2025-05-03 12:45:00', 'YYYY-MM-DD HH24:MI:SS'));
+    pkg_feedback.inserir_feedback(4, 'Gostei da organização do evento.', TO_TIMESTAMP('2025-05-04 14:30:00', 'YYYY-MM-DD HH24:MI:SS'));
+    pkg_feedback.inserir_feedback(5, 'Mais variedade nos serviços seria bom.', TO_TIMESTAMP('2025-05-05 09:20:00', 'YYYY-MM-DD HH24:MI:SS'));
+    pkg_feedback.inserir_feedback(6, 'Excelente localização do abrigo.', TO_TIMESTAMP('2025-05-06 15:00:00', 'YYYY-MM-DD HH24:MI:SS'));
+    pkg_feedback.inserir_feedback(7, 'Parabéns pela iniciativa!', TO_TIMESTAMP('2025-05-07 16:45:00', 'YYYY-MM-DD HH24:MI:SS'));
+END;
+
+-- 8.4. Atualizar
+BEGIN
+    pkg_feedback.atualizar_feedback(1, 1, 'Atendimento excelente e rápido.', TO_TIMESTAMP('2025-05-01 10:30:00', 'YYYY-MM-DD HH24:MI:SS'));
+END;
+
+-- 8.5. Listar todos
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id_feedback NUMBER;
+    v_id_usuario NUMBER;
+    v_comentario VARCHAR2(4000);
+    v_data_hora TIMESTAMP;
+BEGIN
+    pkg_feedback.listar_feedbacks(v_cursor);
+    LOOP
+        FETCH v_cursor INTO v_id_feedback, v_id_usuario, v_comentario, v_data_hora;
+        EXIT WHEN v_cursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_feedback || ', Usuário: ' || v_id_usuario || ', Comentário: ' || v_comentario || ', Data/Hora: ' || TO_CHAR(v_data_hora, 'YYYY-MM-DD HH24:MI:SS'));
+    END LOOP;
+    CLOSE v_cursor;
+END;
+
+-- 8.6. Listar por ID
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id_feedback NUMBER;
+    v_id_usuario NUMBER;
+    v_comentario VARCHAR2(4000);
+    v_data_hora TIMESTAMP;
+BEGIN
+    pkg_feedback.buscar_feedback(3, v_cursor);
+    LOOP
+        FETCH v_cursor INTO v_id_feedback, v_id_usuario, v_comentario, v_data_hora;
+        EXIT WHEN v_cursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_feedback || ', Usuário: ' || v_id_usuario || ', Comentário: ' || v_comentario || ', Data/Hora: ' || TO_CHAR(v_data_hora, 'YYYY-MM-DD HH24:MI:SS'));
+    END LOOP;
+    CLOSE v_cursor;
+END;
+
+-- 8.7. Excluir
+BEGIN
+    pkg_feedback.excluir_feedback(7);
+END;
+
+-- 9. T_Registro_Evento
+
+-- 9.1. Cabeçalho
+CREATE OR REPLACE PACKAGE pkg_registro_evento AS
+    PROCEDURE inserir_evento(
+        p_descricao IN VARCHAR2,
+        p_data_hora IN TIMESTAMP,
+        p_id_usuario IN NUMBER,
+        p_localizacao IN VARCHAR2,
+        p_id_abrigo IN NUMBER
+    );
+
+    PROCEDURE atualizar_evento(
+        p_id_evento IN NUMBER,
+        p_descricao IN VARCHAR2,
+        p_data_hora IN TIMESTAMP,
+        p_id_usuario IN NUMBER,
+        p_localizacao IN VARCHAR2,
+        p_id_abrigo IN NUMBER
+    );
+
+    PROCEDURE excluir_evento(p_id_evento IN NUMBER);
+
+    PROCEDURE listar_eventos(p_cursor OUT SYS_REFCURSOR);
+
+    PROCEDURE buscar_evento(p_id_evento IN NUMBER, p_cursor OUT SYS_REFCURSOR);
+END pkg_registro_evento;
+
+-- 9.2. Corpo
+CREATE OR REPLACE PACKAGE BODY pkg_registro_evento AS
+
+    PROCEDURE inserir_evento(
+        p_descricao IN VARCHAR2,
+        p_data_hora IN TIMESTAMP,
+        p_id_usuario IN NUMBER,
+        p_localizacao IN VARCHAR2,
+        p_id_abrigo IN NUMBER
+    ) IS
+    BEGIN
+        INSERT INTO T_Registro_Evento (descricao, data_hora, id_usuario, localizacao, id_abrigo)
+        VALUES (p_descricao, p_data_hora, p_id_usuario, p_localizacao, p_id_abrigo);
+        COMMIT;
+    END inserir_evento;
+
+    PROCEDURE atualizar_evento(
+        p_id_evento IN NUMBER,
+        p_descricao IN VARCHAR2,
+        p_data_hora IN TIMESTAMP,
+        p_id_usuario IN NUMBER,
+        p_localizacao IN VARCHAR2,
+        p_id_abrigo IN NUMBER
+    ) IS
+    BEGIN
+        UPDATE T_Registro_Evento
+        SET descricao = p_descricao,
+            data_hora = p_data_hora,
+            id_usuario = p_id_usuario,
+            localizacao = p_localizacao,
+            id_abrigo = p_id_abrigo
+        WHERE id_evento = p_id_evento;
+        COMMIT;
+    END atualizar_evento;
+
+    PROCEDURE excluir_evento(p_id_evento IN NUMBER) IS
+    BEGIN
+        DELETE FROM T_Registro_Evento WHERE id_evento = p_id_evento;
+        COMMIT;
+    END excluir_evento;
+
+    PROCEDURE listar_eventos(p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR SELECT * FROM T_Registro_Evento;
+    END listar_eventos;
+
+    PROCEDURE buscar_evento(p_id_evento IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
+    BEGIN
+        OPEN p_cursor FOR SELECT * FROM T_Registro_Evento WHERE id_evento = p_id_evento;
+    END buscar_evento;
+
+END pkg_registro_evento;
+
+-- 9.3. Inserir
+BEGIN
+    pkg_registro_evento.inserir_evento('Reunião de planejamento semanal.', TO_TIMESTAMP('2025-05-01 09:00:00', 'YYYY-MM-DD HH24:MI:SS'), 1, 'Sala de reuniões', 1);
+    pkg_registro_evento.inserir_evento('Entrega de doações recebidas.', TO_TIMESTAMP('2025-05-02 10:30:00', 'YYYY-MM-DD HH24:MI:SS'), 2, 'Depósito central', 2);
+    pkg_registro_evento.inserir_evento('Treinamento de voluntários.', TO_TIMESTAMP('2025-05-03 11:15:00', 'YYYY-MM-DD HH24:MI:SS'), 3, 'Auditório principal', 3);
+    pkg_registro_evento.inserir_evento('Visita de inspeção da prefeitura.', TO_TIMESTAMP('2025-05-04 14:45:00', 'YYYY-MM-DD HH24:MI:SS'), 4, 'Sede administrativa', 4);
+    pkg_registro_evento.inserir_evento('Campanha de arrecadação.', TO_TIMESTAMP('2025-05-05 16:20:00', 'YYYY-MM-DD HH24:MI:SS'), 5, 'Praça central', 5);
+    pkg_registro_evento.inserir_evento('Sessão de feedback com atendidos.', TO_TIMESTAMP('2025-05-06 13:10:00', 'YYYY-MM-DD HH24:MI:SS'), 6, 'Sala de convivência', 6);
+    pkg_registro_evento.inserir_evento('Evento de integração comunitária.', TO_TIMESTAMP('2025-05-07 15:55:00', 'YYYY-MM-DD HH24:MI:SS'), 7, 'Parque municipal', 7);
+END;
+
+-- 9.4. Atualizar
+BEGIN
+    pkg_registro_evento.atualizar_evento(1, 'Reunião semanal atualizada.', TO_TIMESTAMP('2025-05-01 09:30:00', 'YYYY-MM-DD HH24:MI:SS'), 1, 'Sala A', 1);
+END;
+
+-- 9.5. Listar todos
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id_evento NUMBER;
+    v_descricao VARCHAR2(400);
+    v_data_hora TIMESTAMP;
+    v_id_usuario NUMBER;
+    v_localizacao VARCHAR2(100);
+    v_id_abrigo NUMBER;
+BEGIN
+    pkg_registro_evento.listar_eventos(v_cursor);
+    LOOP
+        FETCH v_cursor INTO v_id_evento, v_descricao, v_data_hora, v_id_usuario, v_localizacao, v_id_abrigo;
+        EXIT WHEN v_cursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_evento || ', Descrição: ' || v_descricao || ', Data/Hora: ' || TO_CHAR(v_data_hora, 'YYYY-MM-DD HH24:MI:SS') ||
+                             ', Usuário: ' || v_id_usuario || ', Local: ' || v_localizacao || ', Abrigo: ' || v_id_abrigo);
+    END LOOP;
+    CLOSE v_cursor;
+END;
+
+-- 9.6. Listar por ID
+DECLARE
+    v_cursor SYS_REFCURSOR;
+    v_id_evento NUMBER;
+    v_descricao VARCHAR2(400);
+    v_data_hora TIMESTAMP;
+    v_id_usuario NUMBER;
+    v_localizacao VARCHAR2(100);
+    v_id_abrigo NUMBER;
+BEGIN
+    pkg_registro_evento.buscar_evento(3, v_cursor);
+    LOOP
+        FETCH v_cursor INTO v_id_evento, v_descricao, v_data_hora, v_id_usuario, v_localizacao, v_id_abrigo;
+        EXIT WHEN v_cursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_evento || ', Descrição: ' || v_descricao || ', Data/Hora: ' || TO_CHAR(v_data_hora, 'YYYY-MM-DD HH24:MI:SS') ||
+                             ', Usuário: ' || v_id_usuario || ', Local: ' || v_localizacao || ', Abrigo: ' || v_id_abrigo);
+    END LOOP;
+    CLOSE v_cursor;
+END;
+
+-- 9.7. Excluir
+BEGIN
+    pkg_registro_evento.excluir_evento(7);
+END;
 
