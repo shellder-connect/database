@@ -43,7 +43,7 @@
 
 - **id**: Identificador único do usuário
 - **nome**: Nome completo do usuário
-- **username**: Nome de usuário utilizado para login
+- **username**: Email do usuário
 - **senha**: Senha de acesso do usuário
 - **id_tipo_usuario**: Define o perfil do usuário (admin, voluntario, profissional, atendido)
 - **telefone**: Número de telefone para contato
@@ -160,7 +160,7 @@
 - **descricao:** Descrição detalhada do que aconteceu no evento ou do Mural com as postagens pedindo ajuda.
 - **data_hora:** Data e hora em que o evento ocorreu
 - **id_usuario:** Chave estrangeira do usuário responsável ou envolvido no evento
-- **localizacao:** Informação textual sobre onde o evento ocorreu
+- **localizacao:** Informação textual sobre onde o evento ocorreu, neste caso será o CEP do cliente, pois será conectado na API do via CEP e teremos os demais dados.
 
 | Campo                | Valor de Exemplo                               |
 | -------------------- | ---------------------------------------------- |
