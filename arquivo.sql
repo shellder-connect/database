@@ -989,8 +989,31 @@ CREATE OR REPLACE PACKAGE BODY pkg_categoria AS
 
     PROCEDURE excluir_categoria(p_id IN NUMBER) IS
     BEGIN
-        DELETE FROM T_Categoria WHERE id_categoria = p_id;
-        COMMIT;
+       -- Excluir os feedbacks relacionados aos usuários do tipo
+        DELETE FROM T_Feedbacks
+        WHERE id_usuario IN (
+            SELECT id_usuario FROM T_Usuario WHERE id_tipo_usuario = p_id
+        );
+    
+        -- Excluir os registros de eventos relacionados aos usuários do tipo
+        DELETE FROM T_Registro_Evento
+        WHERE id_usuario IN (
+            SELECT id_usuario FROM T_Usuario WHERE id_tipo_usuario = p_id
+        );
+    
+        -- Excluir os usuários que pertencem ao tipo de usuário
+        DELETE FROM T_Usuario
+        WHERE id_tipo_usuario = p_id;
+    
+        -- Excluir endereços vinculados aos usuários (caso necessário)
+        DELETE FROM T_Endereco
+        WHERE id_endereco IN (
+            SELECT id_endereco FROM T_Usuario WHERE id_tipo_usuario = p_id
+        );
+    
+        -- Por fim, excluir o tipo de usuário
+        DELETE FROM T_Tipo_Usuario
+        WHERE id_tipo_usuario = p_id;
     END excluir_categoria;
 
     PROCEDURE listar_categorias(p_cursor OUT SYS_REFCURSOR) IS
@@ -1096,7 +1119,24 @@ CREATE OR REPLACE PACKAGE BODY pkg_abrigo AS
 
     PROCEDURE excluir_abrigo(p_id IN NUMBER) IS
     BEGIN
-        DELETE FROM T_Abrigo WHERE id_abrigo = p_id;
+        -- Excluir registros de distribuição (que dependem das doações)
+        DELETE FROM T_Distribuicao
+        WHERE id_doacao IN (
+            SELECT id_doacao FROM T_Doacao WHERE id_abrigo = p_id
+        );
+    
+        -- Excluir doações vinculadas ao abrigo
+        DELETE FROM T_Doacao
+        WHERE id_abrigo = p_id;
+    
+        -- Excluir eventos vinculados ao abrigo
+        DELETE FROM T_Registro_Evento
+        WHERE id_abrigo = p_id;
+    
+        -- Excluir o abrigo
+        DELETE FROM T_Abrigo
+        WHERE id_abrigo = p_id;
+    
         COMMIT;
     END excluir_abrigo;
 
@@ -1422,8 +1462,8 @@ END;
 
 -- 8.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_feedback AS
-    PROCEDURE inserir_feedback(p_id_usuario IN NUMBER, p_comentario IN VARCHAR2, p_data_hora IN TIMESTAMP);
-    PROCEDURE atualizar_feedback(p_id IN NUMBER, p_id_usuario IN NUMBER, p_comentario IN VARCHAR2, p_data_hora IN TIMESTAMP);
+    PROCEDURE inserir_feedback(p_id_usuario IN NUMBER, p_nota IN NUMBER, p_comentario IN VARCHAR2, p_data_feedback IN TIMESTAMP);
+    PROCEDURE atualizar_feedback(p_id IN NUMBER, p_id_usuario IN NUMBER, p_nota IN NUMBER, p_comentario IN VARCHAR2, p_data_feedback IN TIMESTAMP);
     PROCEDURE excluir_feedback(p_id IN NUMBER);
     PROCEDURE listar_feedbacks(p_cursor OUT SYS_REFCURSOR);
     PROCEDURE buscar_feedback(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR);
@@ -1432,55 +1472,59 @@ END pkg_feedback;
 -- 8.2. Corpo
 CREATE OR REPLACE PACKAGE BODY pkg_feedback AS
 
-    PROCEDURE inserir_feedback(p_id_usuario IN NUMBER, p_comentario IN VARCHAR2, p_data_hora IN TIMESTAMP) IS
+    PROCEDURE inserir_feedback(p_id_usuario IN NUMBER, p_nota IN NUMBER, p_comentario IN VARCHAR2, p_data_feedback IN TIMESTAMP) IS
     BEGIN
-        INSERT INTO T_Feedback(id_usuario, comentario, data_hora)
-        VALUES(p_id_usuario, p_comentario, p_data_hora);
+        INSERT INTO T_Feedbacks(id_usuario, nota, comentario, data_feedback)
+        VALUES(p_id_usuario, p_nota, p_comentario, p_data_feedback);
         COMMIT;
     END inserir_feedback;
 
-    PROCEDURE atualizar_feedback(p_id IN NUMBER, p_id_usuario IN NUMBER, p_comentario IN VARCHAR2, p_data_hora IN TIMESTAMP) IS
+    PROCEDURE atualizar_feedback(p_id IN NUMBER, p_id_usuario IN NUMBER, p_nota IN NUMBER, p_comentario IN VARCHAR2, p_data_feedback IN TIMESTAMP) IS
     BEGIN
-        UPDATE T_Feedback
+        UPDATE T_Feedbacks
         SET id_usuario = p_id_usuario,
+            nota = p_nota,
             comentario = p_comentario,
-            data_hora = p_data_hora
+            data_feedback = p_data_feedback
         WHERE id_feedback = p_id;
         COMMIT;
     END atualizar_feedback;
 
     PROCEDURE excluir_feedback(p_id IN NUMBER) IS
     BEGIN
-        DELETE FROM T_Feedback WHERE id_feedback = p_id;
+        DELETE FROM T_Feedbacks WHERE id_feedback = p_id;
         COMMIT;
     END excluir_feedback;
 
     PROCEDURE listar_feedbacks(p_cursor OUT SYS_REFCURSOR) IS
     BEGIN
-        OPEN p_cursor FOR SELECT * FROM T_Feedback;
+        OPEN p_cursor FOR 
+        SELECT id_feedback, id_usuario, nota, comentario, 
+               CAST(data_feedback AS TIMESTAMP) 
+        FROM T_Feedbacks;
     END listar_feedbacks;
 
     PROCEDURE buscar_feedback(p_id IN NUMBER, p_cursor OUT SYS_REFCURSOR) IS
     BEGIN
-        OPEN p_cursor FOR SELECT * FROM T_Feedback WHERE id_feedback = p_id;
+        OPEN p_cursor FOR 
+        SELECT id_feedback, id_usuario, nota, comentario, 
+               CAST(data_feedback AS TIMESTAMP) 
+        FROM T_Feedbacks 
+        WHERE id_feedback = p_id;
     END buscar_feedback;
 
 END pkg_feedback;
 
+-- select * from T_Feedbacks;
+
 -- 8.3. Inserir
 BEGIN
-    pkg_feedback.inserir_feedback(1, 'Ótimo atendimento, muito satisfeito.', TO_TIMESTAMP('2025-05-01 10:00:00', 'YYYY-MM-DD HH24:MI:SS'));
-    pkg_feedback.inserir_feedback(2, 'Poderia melhorar o tempo de resposta.', TO_TIMESTAMP('2025-05-02 11:15:00', 'YYYY-MM-DD HH24:MI:SS'));
-    pkg_feedback.inserir_feedback(3, 'Equipe muito prestativa.', TO_TIMESTAMP('2025-05-03 12:45:00', 'YYYY-MM-DD HH24:MI:SS'));
-    pkg_feedback.inserir_feedback(4, 'Gostei da organização do evento.', TO_TIMESTAMP('2025-05-04 14:30:00', 'YYYY-MM-DD HH24:MI:SS'));
-    pkg_feedback.inserir_feedback(5, 'Mais variedade nos serviços seria bom.', TO_TIMESTAMP('2025-05-05 09:20:00', 'YYYY-MM-DD HH24:MI:SS'));
-    pkg_feedback.inserir_feedback(6, 'Excelente localização do abrigo.', TO_TIMESTAMP('2025-05-06 15:00:00', 'YYYY-MM-DD HH24:MI:SS'));
-    pkg_feedback.inserir_feedback(7, 'Parabéns pela iniciativa!', TO_TIMESTAMP('2025-05-07 16:45:00', 'YYYY-MM-DD HH24:MI:SS'));
+    pkg_feedback.inserir_feedback(6, 1, 'Parabéns pela iniciativa!', TO_TIMESTAMP('2025-05-07 16:45:00', 'YYYY-MM-DD HH24:MI:SS'));
 END;
 
 -- 8.4. Atualizar
 BEGIN
-    pkg_feedback.atualizar_feedback(1, 1, 'Atendimento excelente e rápido.', TO_TIMESTAMP('2025-05-01 10:30:00', 'YYYY-MM-DD HH24:MI:SS'));
+    pkg_feedback.atualizar_feedback(6, 5, 5, 'Atendimento excelente e rápido.', TO_TIMESTAMP('2025-05-01 10:30:00', 'YYYY-MM-DD HH24:MI:SS'));
 END;
 
 -- 8.5. Listar todos
@@ -1488,14 +1532,15 @@ DECLARE
     v_cursor SYS_REFCURSOR;
     v_id_feedback NUMBER;
     v_id_usuario NUMBER;
+    v_nota NUMBER;
     v_comentario VARCHAR2(4000);
     v_data_hora TIMESTAMP;
 BEGIN
     pkg_feedback.listar_feedbacks(v_cursor);
     LOOP
-        FETCH v_cursor INTO v_id_feedback, v_id_usuario, v_comentario, v_data_hora;
+        FETCH v_cursor INTO v_id_feedback, v_id_usuario, v_nota, v_comentario, v_data_hora;
         EXIT WHEN v_cursor%NOTFOUND;
-        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_feedback || ', Usuário: ' || v_id_usuario || ', Comentário: ' || v_comentario || ', Data/Hora: ' || TO_CHAR(v_data_hora, 'YYYY-MM-DD HH24:MI:SS'));
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_feedback || ', Usuário: ' || v_id_usuario || ', Nota: ' || v_nota || ', Comentário: ' || v_comentario || ', Data/Hora: ' || TO_CHAR(v_data_hora, 'YYYY-MM-DD HH24:MI:SS'));
     END LOOP;
     CLOSE v_cursor;
 END;
@@ -1505,14 +1550,15 @@ DECLARE
     v_cursor SYS_REFCURSOR;
     v_id_feedback NUMBER;
     v_id_usuario NUMBER;
+    v_nota NUMBER;
     v_comentario VARCHAR2(4000);
-    v_data_hora TIMESTAMP;
+    v_data_hora TIMESTAMP; -- Alterado para TIMESTAMP
 BEGIN
     pkg_feedback.buscar_feedback(3, v_cursor);
     LOOP
-        FETCH v_cursor INTO v_id_feedback, v_id_usuario, v_comentario, v_data_hora;
+        FETCH v_cursor INTO v_id_feedback, v_id_usuario, v_nota, v_comentario, v_data_hora;
         EXIT WHEN v_cursor%NOTFOUND;
-        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_feedback || ', Usuário: ' || v_id_usuario || ', Comentário: ' || v_comentario || ', Data/Hora: ' || TO_CHAR(v_data_hora, 'YYYY-MM-DD HH24:MI:SS'));
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_id_feedback || ', Usuário: ' || v_id_usuario || ', Nota: ' || v_nota || ', Comentário: ' || v_comentario || ', Data/Hora: ' || TO_CHAR(v_data_hora, 'YYYY-MM-DD HH24:MI:SS'));
     END LOOP;
     CLOSE v_cursor;
 END;
