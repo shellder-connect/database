@@ -18,7 +18,6 @@ DROP TABLE T_Disponibilidade CASCADE CONSTRAINTS;
 DROP TABLE T_Voluntario CASCADE CONSTRAINTS;
 DROP TABLE T_Empresa_Parceira CASCADE CONSTRAINTS;
 DROP TABLE T_Especialidade CASCADE CONSTRAINTS;
-DROP TABLE T_Forma_Atendimento CASCADE CONSTRAINTS;
 DROP TABLE T_Feedbacks CASCADE CONSTRAINTS;
 DROP TABLE T_Profissional_Saude CASCADE CONSTRAINTS;
 DROP TABLE T_Mural_Emergencia CASCADE CONSTRAINTS;
@@ -139,12 +138,6 @@ CREATE TABLE T_Especialidade (
     descricao        VARCHAR2(100)
 );
 
--- FORMA DE ATENDIMENTO
-CREATE TABLE T_Forma_Atendimento (
-    id_forma_atendimento INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    descricao            VARCHAR2(50) NOT NULL UNIQUE
-);
-
 -- FEEDBACK
 CREATE TABLE T_Feedbacks (
     id_feedback     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -161,10 +154,8 @@ CREATE TABLE T_Feedbacks (
 CREATE TABLE T_Profissional_Saude (
     id_profissional         INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     id_especialidade        NUMBER NOT NULL,
-    id_forma_atendimento    NUMBER NOT NULL,
     CONSTRAINT fk_profissional_usuario FOREIGN KEY (id_profissional) REFERENCES T_Usuario(id_usuario),
-    CONSTRAINT fk_profissional_especialidade FOREIGN KEY (id_especialidade) REFERENCES T_Especialidade(id_especialidade),
-    CONSTRAINT fk_forma_atendimento FOREIGN KEY (id_forma_atendimento) REFERENCES T_Forma_Atendimento(id_forma_atendimento)
+    CONSTRAINT fk_profissional_especialidade FOREIGN KEY (id_especialidade) REFERENCES T_Especialidade(id_especialidade)
 );
 
 -- MURAL EMERGENCIA
