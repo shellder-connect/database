@@ -4,7 +4,7 @@
 📄 *Define os tipos de usuários do sistema, como administrador, voluntário, profissional da saúde e pessoa atendida. Essa tabela funciona como domínio para a classificação dos usuários cadastrados.*
 
 - **id_tipo_usuario:** Identificador único do tipo de usuário
-- **descricao:** Descrição do tipo (ex: Admin, Voluntário, Profissional, Atendido)
+- **descricao:** Descrição do tipo (ex: Admin, Voluntário, Profissional, Atendido, Comum, Gestor do Abrigo, Entre outros)
 
 | Campo             | Valor de Exemplo |
 | ----------------- | ---------------- |
@@ -71,7 +71,7 @@
 📄 *Define categorias de itens que podem ser doados, como alimentos, roupas, medicamentos, etc.*
 
 - **id**: Identificador único da categoria
-- **descricao**: Descrição da categoria da doação
+- **descricao**: Descrição da categoria da doação que pode ser Alimento, Medicamento, Vestuário, Entre outros.
 
 | Campo       | Valor de Exemplo |
 | ----------- | ---------------- |
@@ -142,7 +142,6 @@
 - **nota:** Nota atribuída ao atendimento ou interação (ex: de 1 a 5)
 - **comentario:** Comentário textual fornecido pelo avaliador
 - **data_feedback:** Data e hora em que o feedback foi registrado
-- **id_avaliado:** Chave estrangeira para o usuário que está sendo avaliado
 - **id_usuario:** Chave estrangeira para o usuário que realizou a avaliação
 
 | Campo           | Valor de Exemplo                           |
@@ -150,8 +149,7 @@
 | `id_feedback`   | 3                                          |
 | `nota`          | 5                                          |
 | `comentario`    | `Atendimento excelente e muito acolhedor.` |
-| `data_feedback` | `2025-05-25 10:30:00`                      |
-| `id_avaliado`   | 8 *(Profissional avaliado)*                |
+| `data_feedback` | `2025-05-25 10:30:00`                      |               
 | `id_usuario`    | 12 *(Usuário que avaliou)*                 |
 
 
@@ -159,7 +157,7 @@
 📄 Registra os eventos ocorridos no sistema, como doações realizadas, distribuições efetuadas, atendimentos prestados, entre outros. Cada registro está vinculado a um tipo de evento, a um usuário e armazena a data e a localização do ocorrido.
 
 - **id_registro_evento:** Identificador único do evento registrado
-- **descricao:** Descrição detalhada do que aconteceu no evento ou do Mural
+- **descricao:** Descrição detalhada do que aconteceu no evento ou do Mural com as postagens pedindo ajuda.
 - **data_hora:** Data e hora em que o evento ocorreu
 - **id_usuario:** Chave estrangeira do usuário responsável ou envolvido no evento
 - **localizacao:** Informação textual sobre onde o evento ocorreu
