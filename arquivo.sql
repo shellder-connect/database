@@ -785,7 +785,6 @@ END;
         --  3. T_Usuario
 -- -- ================================================================================================================
 
-
 -- 3.1. Cabeçalho 
 CREATE OR REPLACE PACKAGE pkg_usuario AS
     PROCEDURE inserir_usuario(
@@ -966,7 +965,6 @@ END;
         -- 4. T_Categoria
 -- -- ================================================================================================================
 
-
 -- 4.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_categoria AS
     PROCEDURE inserir_categoria(p_descricao IN VARCHAR2);
@@ -1093,7 +1091,6 @@ END;
 -- -- ================================================================================================================
        -- 5. T_Abrigo
 -- -- ================================================================================================================
-
 
 -- 5.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_abrigo AS
@@ -1232,7 +1229,6 @@ END;
         --  6. T_Doacao
 -- -- ================================================================================================================
 
-
 -- 6.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_doacao AS
     PROCEDURE inserir_doacao(p_id_abrigo IN NUMBER, p_descricao IN VARCHAR2, p_id_categoria IN NUMBER, p_quantidade IN NUMBER);
@@ -1358,7 +1354,6 @@ END;
 -- -- ================================================================================================================
         --  7. T_Distribuicao
 -- -- ================================================================================================================
-
 
 -- 7.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_distribuicao AS
@@ -1717,7 +1712,6 @@ BEGIN
     pkg_registro_evento.excluir_evento(7);
 END;
 
-
  -- ================================================================================================================
     -- CONSULTAS SQL AVANÇADAS - SISTEMA DE GESTÃO DE ABRIGOS E DOAÇÕES
  -- ================================================================================================================
@@ -1799,35 +1793,20 @@ SELECT
     COUNT(DISTINCT u.id_usuario) AS total_usuarios,
     COUNT(DISTINCT CASE WHEN u.status = 1 THEN u.id_usuario END) AS usuarios_ativos,
     ROUND(
-        (COUNT(DISTINCT CASE WHEN u.status = 1 THEN u.id_usuario END) / 
-         COUNT(DISTINCT u.id_usuario)) * 100, 2
-    ) AS percentual_usuarios_ativos,
+        CASE 
+            WHEN COUNT(DISTINCT u.id_usuario) = 0 THEN 0
+            ELSE (COUNT(DISTINCT CASE WHEN u.status = 1 THEN u.id_usuario END) / COUNT(DISTINCT u.id_usuario)) * 100
+        END
+    , 2) AS percentual_usuarios_ativos,
     
     -- Métricas de eventos registrados
     COUNT(re.id_registro_evento) AS total_eventos_registrados,
-    ROUND(COUNT(re.id_registro_evento) / COUNT(DISTINCT u.id_usuario), 2) AS media_eventos_por_usuario,
-    
-    -- Análise temporal
-    COUNT(CASE WHEN re.data_hora >= SYSDATE - 30 THEN 1 END) AS eventos_ultimos_30_dias,
-    COUNT(CASE WHEN re.data_hora >= SYSDATE - 7 THEN 1 END) AS eventos_ultima_semana,
-    
-    -- Feedback e satisfação
-    COUNT(f.id_feedback) AS total_feedbacks,
-    ROUND(AVG(f.nota), 2) AS media_satisfacao,
-    COUNT(CASE WHEN f.nota >= 4 THEN 1 END) AS feedbacks_positivos,
-    
-    -- Distribuição geográfica
-    COUNT(DISTINCT e.cidade) AS cidades_atendidas,
-    COUNT(DISTINCT e.estado) AS estados_atendidos,
-    
-    -- Faixa etária (calculada)
-    ROUND(AVG(
+    ROUND(
         CASE 
-            WHEN u.data_nascimento IS NOT NULL THEN 
-                EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM u.data_nascimento)
-            ELSE NULL 
+            WHEN COUNT(DISTINCT u.id_usuario) = 0 THEN 0
+            ELSE COUNT(re.id_registro_evento) / COUNT(DISTINCT u.id_usuario)
         END
-    ), 0) AS idade_media
+    , 2) AS media_eventos_por_usuario
     
 FROM T_Tipo_Usuario tu
 LEFT JOIN T_Usuario u ON tu.id_tipo_usuario = u.id_tipo_usuario
