@@ -1,6 +1,8 @@
 SET SERVEROUTPUT ON;
 
--- Apagar todas as tabelas pois estou com logs antigos
+-- -- ================================================================================================================
+        -- Apagar todas as tabelas pois estou com logs antigos
+-- -- ================================================================================================================
 
 BEGIN
     FOR rec IN (SELECT table_name FROM all_tables WHERE owner = 'RM553472') LOOP
@@ -12,9 +14,10 @@ END;
 -- Claudio Silva Bispo RM553472
 -- Patricia Naomi Yamagishi RM552981
 
-/***********************************************************************************************
-    Deletar tabelas caso já existam
-***********************************************************************************************/
+-- -- ================================================================================================================
+        --- Deletar tabelas caso já existam
+-- -- ================================================================================================================
+
 DROP TABLE T_Tipo_Usuario CASCADE CONSTRAINTS;
 DROP TABLE T_Usuario CASCADE CONSTRAINTS;
 DROP TABLE T_Endereco CASCADE CONSTRAINTS;
@@ -25,9 +28,10 @@ DROP TABLE T_Distribuicao CASCADE CONSTRAINTS;
 DROP TABLE T_Feedbacks CASCADE CONSTRAINTS;
 DROP TABLE T_Registro_Evento CASCADE CONSTRAINTS;
 
-/***********************************************************************************************
-    Criar as tabelas
-***********************************************************************************************/
+-- -- ================================================================================================================
+        --  Criar as tabelas
+-- -- ================================================================================================================
+
 
 -- TIPO USUARIO
 CREATE TABLE T_Tipo_Usuario (
@@ -120,9 +124,9 @@ CREATE TABLE T_Registro_Evento (
     CONSTRAINT fk_evento_usuario FOREIGN KEY (id_usuario) REFERENCES T_Usuario(id_usuario)
 );
 
-/***********************************************************************************************
-    Inserir os dados modelos
-***********************************************************************************************/
+-- -- ================================================================================================================
+        --  Inserir os dados nas tabelas
+-- -- ================================================================================================================
 
 -- T_Tipo_Usuario
 INSERT INTO T_Tipo_Usuario (descricao) VALUES ('Administrador');
@@ -207,16 +211,16 @@ INSERT INTO T_Registro_Evento (descricao, data_hora, id_usuario, localizacao, id
 
 -- 2. Empacotamento de Objetos
 
-/***************************************************************************************************************************
-    -- 1. T_Tipo_Usuario
+-- -- ================================================================================================================
 
-    Procedures (inserção, alteração, exclusão, busca e relatório)
-    Função (retorno de total)
-    Trigger (validação automática)
-    Cursores com loops
-    Controle de fluxo com IF/ELSE
-    Relatórios com agregação e subconsulta (JOIN simplificado)
-***************************************************************************************************************************/
+        --  1. T_Tipo_Usuario
+        --  Procedures (inserção, alteração, exclusão, busca e relatório)
+        --  Função (retorno de total)
+        --  Trigger (validação automática)
+        --  Cursores com loops
+        --  Controle de fluxo com IF/ELSE
+        --  Relatórios com agregação e subconsulta (JOIN simplificado)
+-- -- ================================================================================================================
 
 -- 1.1. Cabeçalho 
 CREATE OR REPLACE PACKAGE pkg_tipo_usuario AS
@@ -424,16 +428,16 @@ END;
 
 -- select * from T_Tipo_Usuario;
 
-/*********************************************************************************************************************
-    2. T_Endereco
+-- -- ================================================================================================================
+        --  2. T_Endereco
+        --  Procedures (CRUD completo + relatório)
+        --  Função (quantidade por cidade)
+        --  Trigger (validação de CEP)
+        --  Cursores com loop
+        --  Controle de fluxo com IF/ELSE
+        --  Relatório com agrupamento e ordenação
+-- -- ================================================================================================================
 
-    Procedures (CRUD completo + relatório)
-    Função (quantidade por cidade)
-    Trigger (validação de CEP)
-    Cursores com loop
-    Controle de fluxo com IF/ELSE
-    Relatório com agrupamento e ordenação
-*********************************************************************************************************************/
 
 -- 2.1. Cabeçalho 
 CREATE OR REPLACE PACKAGE pkg_endereco AS
@@ -777,9 +781,10 @@ BEGIN
     CLOSE v_cursor;
 END;
 
-/********************************************************************************************************************
-    3. T_Usuario
-*********************************************************************************************************************/
+-- -- ================================================================================================================
+        --  3. T_Usuario
+-- -- ================================================================================================================
+
 
 -- 3.1. Cabeçalho 
 CREATE OR REPLACE PACKAGE pkg_usuario AS
@@ -957,9 +962,10 @@ BEGIN
     pkg_usuario.excluir_usuario(2);
 END;
 
-/***********************************************************************************************
-    4. T_Categoria
-***********************************************************************************************/
+-- -- ================================================================================================================
+        -- 4. T_Categoria
+-- -- ================================================================================================================
+
 
 -- 4.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_categoria AS
@@ -1084,9 +1090,10 @@ BEGIN
     pkg_categoria.excluir_categoria(7);
 END;
 
-/***********************************************************************************************
-    5. T_Abrigo
-***********************************************************************************************/
+-- -- ================================================================================================================
+       -- 5. T_Abrigo
+-- -- ================================================================================================================
+
 
 -- 5.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_abrigo AS
@@ -1221,9 +1228,10 @@ BEGIN
     pkg_abrigo.excluir_abrigo(7);
 END;
 
-/***********************************************************************************************
-    6. T_Doacao
-***********************************************************************************************/
+-- -- ================================================================================================================
+        --  6. T_Doacao
+-- -- ================================================================================================================
+
 
 -- 6.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_doacao AS
@@ -1347,9 +1355,10 @@ BEGIN
     pkg_doacao.excluir_doacao(7);
 END;
 
-/***********************************************************************************************
-    7. T_Distribuicao
-***********************************************************************************************/
+-- -- ================================================================================================================
+        --  7. T_Distribuicao
+-- -- ================================================================================================================
+
 
 -- 7.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_distribuicao AS
@@ -1456,9 +1465,9 @@ BEGIN
     pkg_distribuicao.excluir_distribuicao(7);
 END;
 
-/***********************************************************************************************
-    8. T_Feedback
-***********************************************************************************************/
+-- -- ================================================================================================================
+        --  8. T_Feedback
+-- -- ================================================================================================================
 
 -- 8.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_feedback AS
@@ -1568,9 +1577,9 @@ BEGIN
     pkg_feedback.excluir_feedback(7);
 END;
 
-/***********************************************************************************************
-    9. T_Registro_Evento
-***********************************************************************************************/
+-- -- ================================================================================================================
+        --  9. T_Registro_Evento
+-- -- ================================================================================================================
 
 -- 9.1. Cabeçalho
 CREATE OR REPLACE PACKAGE pkg_registro_evento AS
@@ -1707,3 +1716,215 @@ END;
 BEGIN
     pkg_registro_evento.excluir_evento(7);
 END;
+
+
+ -- ================================================================================================================
+    -- CONSULTAS SQL AVANÇADAS - SISTEMA DE GESTÃO DE ABRIGOS E DOAÇÕES
+ -- ================================================================================================================
+
+-- 1. RELATÓRIO COMPLETO DE DESEMPENHO DOS ABRIGOS
+-- Mostra capacidade, ocupação, total de doações recebidas e distribuições realizadas
+-- Com percentual de ocupação e eficiência de distribuição
+SELECT 
+    a.id_abrigo,
+    a.descricao AS nome_abrigo,
+    a.capacidade_total,
+    a.ocupacao_atual,
+    ROUND((a.ocupacao_atual / NULLIF(a.capacidade_total, 0)) * 100, 2) AS percentual_ocupacao,
+    COUNT(DISTINCT d.id_doacao) AS total_doacoes_recebidas,
+    COALESCE(SUM(d.quantidade), 0) AS quantidade_total_doada,
+    COUNT(DISTINCT dist.id_distribuicao) AS total_distribuicoes,
+    COALESCE(SUM(dist.qtd_destinada), 0) AS quantidade_total_distribuida,
+    CASE 
+        WHEN SUM(d.quantidade) > 0 THEN 
+            ROUND((SUM(dist.qtd_destinada) / SUM(d.quantidade)) * 100, 2)
+        ELSE 0 
+    END AS percentual_eficiencia_distribuicao,
+    ROUND(AVG(f.nota), 2) AS media_avaliacao
+FROM T_Abrigo a
+LEFT JOIN T_Doacao d ON a.id_abrigo = d.id_abrigo
+LEFT JOIN T_Distribuicao dist ON d.id_doacao = dist.id_doacao
+LEFT JOIN T_Registro_Evento re ON a.id_abrigo = re.id_abrigo
+LEFT JOIN T_Usuario u ON re.id_usuario = u.id_usuario
+LEFT JOIN T_Feedbacks f ON u.id_usuario = f.id_usuario
+GROUP BY a.id_abrigo, a.descricao, a.capacidade_total, a.ocupacao_atual
+ORDER BY percentual_eficiencia_distribuicao DESC, total_doacoes_recebidas DESC;
+
+-- =====================================================================
+
+-- 2. ANÁLISE DE DOAÇÕES POR CATEGORIA E PERÍODO
+-- Relatório detalhado das doações por categoria, região e período
+-- Com rankings e comparativos mensais
+SELECT 
+    c.descricao AS categoria,
+    e.cidade,
+    e.estado,
+    COUNT(d.id_doacao) AS total_doacoes,
+    SUM(d.quantidade) AS quantidade_total,
+    AVG(d.quantidade) AS media_quantidade_por_doacao,
+    MAX(d.quantidade) AS maior_doacao,
+    MIN(d.quantidade) AS menor_doacao,
+    COUNT(DISTINCT d.id_abrigo) AS abrigos_beneficiados,
+    RANK() OVER (PARTITION BY e.estado ORDER BY SUM(d.quantidade) DESC) AS ranking_categoria_estado,
+    -- Comparativo com média geral
+    CASE 
+        WHEN SUM(d.quantidade) > (
+            SELECT AVG(quantidade_total) 
+            FROM (
+                SELECT SUM(quantidade) AS quantidade_total 
+                FROM T_Doacao 
+                GROUP BY id_categoria
+            )
+        ) THEN 'ACIMA DA MÉDIA'
+        ELSE 'ABAIXO DA MÉDIA'
+    END AS comparativo_media
+FROM T_Categoria c
+LEFT JOIN T_Doacao d ON c.id_categoria = d.id_categoria
+LEFT JOIN T_Abrigo a ON d.id_abrigo = a.id_abrigo
+LEFT JOIN T_Registro_Evento re ON a.id_abrigo = re.id_abrigo
+LEFT JOIN T_Usuario u ON re.id_usuario = u.id_usuario
+LEFT JOIN T_Endereco e ON u.id_endereco = e.id_endereco
+WHERE d.id_doacao IS NOT NULL
+GROUP BY c.id_categoria, c.descricao, e.cidade, e.estado
+HAVING SUM(d.quantidade) > 0
+ORDER BY e.estado, quantidade_total DESC;
+
+-- =====================================================================
+
+-- 3. RELATÓRIO DE ATIVIDADE DOS USUÁRIOS E ENGAJAMENTO
+-- Análise completa do perfil e atividade dos usuários do sistema
+-- Com métricas de engajamento e satisfação
+SELECT 
+    tu.descricao AS tipo_usuario,
+    COUNT(DISTINCT u.id_usuario) AS total_usuarios,
+    COUNT(DISTINCT CASE WHEN u.status = 1 THEN u.id_usuario END) AS usuarios_ativos,
+    ROUND(
+        (COUNT(DISTINCT CASE WHEN u.status = 1 THEN u.id_usuario END) / 
+         COUNT(DISTINCT u.id_usuario)) * 100, 2
+    ) AS percentual_usuarios_ativos,
+    
+    -- Métricas de eventos registrados
+    COUNT(re.id_registro_evento) AS total_eventos_registrados,
+    ROUND(COUNT(re.id_registro_evento) / COUNT(DISTINCT u.id_usuario), 2) AS media_eventos_por_usuario,
+    
+    -- Análise temporal
+    COUNT(CASE WHEN re.data_hora >= SYSDATE - 30 THEN 1 END) AS eventos_ultimos_30_dias,
+    COUNT(CASE WHEN re.data_hora >= SYSDATE - 7 THEN 1 END) AS eventos_ultima_semana,
+    
+    -- Feedback e satisfação
+    COUNT(f.id_feedback) AS total_feedbacks,
+    ROUND(AVG(f.nota), 2) AS media_satisfacao,
+    COUNT(CASE WHEN f.nota >= 4 THEN 1 END) AS feedbacks_positivos,
+    
+    -- Distribuição geográfica
+    COUNT(DISTINCT e.cidade) AS cidades_atendidas,
+    COUNT(DISTINCT e.estado) AS estados_atendidos,
+    
+    -- Faixa etária (calculada)
+    ROUND(AVG(
+        CASE 
+            WHEN u.data_nascimento IS NOT NULL THEN 
+                EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM u.data_nascimento)
+            ELSE NULL 
+        END
+    ), 0) AS idade_media
+    
+FROM T_Tipo_Usuario tu
+LEFT JOIN T_Usuario u ON tu.id_tipo_usuario = u.id_tipo_usuario
+LEFT JOIN T_Endereco e ON u.id_endereco = e.id_endereco
+LEFT JOIN T_Registro_Evento re ON u.id_usuario = re.id_usuario
+LEFT JOIN T_Feedbacks f ON u.id_usuario = f.id_usuario
+GROUP BY tu.id_tipo_usuario, tu.descricao
+ORDER BY total_usuarios DESC;
+
+-- =====================================================================
+
+-- 4. ANÁLISE TEMPORAL DE DISTRIBUIÇÕES E DEMANDA
+-- Relatório de tendências de distribuição com análise sazonal
+-- Incluindo previsão de demanda baseada em histórico
+SELECT 
+    EXTRACT(YEAR FROM dist.data_destinada) AS ano,
+    EXTRACT(MONTH FROM dist.data_destinada) AS mes,
+    c.descricao AS categoria,
+    
+    -- Métricas de distribuição
+    COUNT(dist.id_distribuicao) AS total_distribuicoes,
+    SUM(dist.qtd_destinada) AS quantidade_distribuida,
+    COUNT(DISTINCT dist.id_pessoa_atendida) AS pessoas_atendidas,
+    ROUND(AVG(dist.qtd_destinada), 2) AS media_por_distribuicao,
+    
+    -- Análise de abrigos envolvidos
+    COUNT(DISTINCT a.id_abrigo) AS abrigos_envolvidos,
+    ROUND(SUM(dist.qtd_destinada) / COUNT(DISTINCT a.id_abrigo), 2) AS media_por_abrigo,
+    
+    -- Comparativo mensal (crescimento)
+    LAG(SUM(dist.qtd_destinada)) OVER (
+        PARTITION BY c.id_categoria 
+        ORDER BY EXTRACT(YEAR FROM dist.data_destinada), EXTRACT(MONTH FROM dist.data_destinada)
+    ) AS qtd_mes_anterior,
+    
+    CASE 
+        WHEN LAG(SUM(dist.qtd_destinada)) OVER (
+            PARTITION BY c.id_categoria 
+            ORDER BY EXTRACT(YEAR FROM dist.data_destinada), EXTRACT(MONTH FROM dist.data_destinada)
+        ) IS NOT NULL THEN
+            ROUND(
+                ((SUM(dist.qtd_destinada) - LAG(SUM(dist.qtd_destinada)) OVER (
+                    PARTITION BY c.id_categoria 
+                    ORDER BY EXTRACT(YEAR FROM dist.data_destinada), EXTRACT(MONTH FROM dist.data_destinada)
+                )) / LAG(SUM(dist.qtd_destinada)) OVER (
+                    PARTITION BY c.id_categoria 
+                    ORDER BY EXTRACT(YEAR FROM dist.data_destinada), EXTRACT(MONTH FROM dist.data_destinada)
+                )) * 100, 2
+            )
+        ELSE NULL 
+    END AS percentual_crescimento,
+    
+    -- Análise de capacidade dos abrigos
+    ROUND(AVG(a.ocupacao_atual / NULLIF(a.capacidade_total, 0)) * 100, 2) AS media_ocupacao_abrigos,
+    
+    -- Indicador de demanda (baseado na relação distribuição/capacidade)
+    CASE 
+        WHEN AVG(a.ocupacao_atual / NULLIF(a.capacidade_total, 0)) > 0.8 THEN 'ALTA DEMANDA'
+        WHEN AVG(a.ocupacao_atual / NULLIF(a.capacidade_total, 0)) > 0.5 THEN 'DEMANDA MODERADA'
+        ELSE 'BAIXA DEMANDA'
+    END AS nivel_demanda
+    
+FROM T_Distribuicao dist
+INNER JOIN T_Doacao d ON dist.id_doacao = d.id_doacao
+INNER JOIN T_Categoria c ON d.id_categoria = c.id_categoria
+INNER JOIN T_Abrigo a ON d.id_abrigo = a.id_abrigo
+WHERE dist.data_destinada IS NOT NULL
+GROUP BY 
+    EXTRACT(YEAR FROM dist.data_destinada),
+    EXTRACT(MONTH FROM dist.data_destinada),
+    c.id_categoria,
+    c.descricao
+ORDER BY 
+    ano DESC, 
+    mes DESC, 
+    quantidade_distribuida DESC;
+
+-- -- -- ================================================================================================================
+-- RESUMO DAS CONSULTAS:
+--
+-- 1. RELATÓRIO DE DESEMPENHO DOS ABRIGOS:
+--    - Múltiplos JOINs entre 6 tabelas
+--    - Funções: COUNT, SUM, AVG, ROUND, NULLIF
+--    - Análise de capacidade e eficiência
+--
+-- 2. ANÁLISE DE DOAÇÕES POR CATEGORIA:
+--    - JOINs complexos com subquery
+--    - Funções: COUNT, SUM, AVG, MAX, MIN, RANK
+--    - Agrupamento por região e categoria
+--
+-- 3. RELATÓRIO DE ENGAJAMENTO DE USUÁRIOS:
+--    - JOINs entre 5 tabelas
+--    - Funções: COUNT, AVG, EXTRACT, CASE
+--    - Análise temporal e demográfica
+--
+-- 4. ANÁLISE TEMPORAL DE DISTRIBUIÇÕES:
+--    - Window Functions (LAG, OVER)
+--    - Funções: EXTRACT, COUNT, SUM, AVG
+--    - Análise de tendências e crescimento
+-- -- -- ================================================================================================================
