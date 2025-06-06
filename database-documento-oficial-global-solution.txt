@@ -1,0 +1,17 @@
+Grupo:
+Shellder Connection
+
+Alunos:
+Claudio Bispo - RM553472
+Patricia Naomi - RM552981
+
+Link do GitHub com todos os arquivos do projeto:
+https://github.com/shellder-connect/database
+
+Link do vídeo explicando nossa solução:
+
+Link do vídeo da matéria de Database:
+https://youtu.be/vx0XLmsGUYU
+
+Link do vídeo mostrando a execução da nossa aplicação Mobile:
+https://youtu.be/zA-uwZe2gFY?si=eYdUpa-6DzuRlZrz

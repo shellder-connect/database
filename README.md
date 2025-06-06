@@ -3,23 +3,6 @@
   <img src="https://github.com/shellder-connect/.github/blob/151c75b13fb239c1749b3a6efa64ed6d57608a5b/logo-readme.png" width="300"/>
 </p>
 
-
-
-## 📌 **Índice**
-1. [Sobre o Projeto](#-sobre-o-projeto)
-2. [Implementações Java – Sprint 4](#️-implementações-java--sprint-4)
-3. [Implementações DevOps – Sprint 4](#️-implementações-devops--sprint-4)
-4. [Vídeos Demonstrativos](#-vídeos-demonstrativos)
-5. [Arquitetura do Projeto](#-arquitetura-do-projeto)
-6. [Configuração das Pipelines](#-configuração-das-pipelines)
-7. [Rodando o Projeto com Docker](#-rodando-o-projeto-com-docker)
-8. [Equipe](#-equipe)
-
-
-## 💡 **Sobre o Projeto**
-O sistema é uma aplicação Java com Spring Boot, desenvolvida para gerenciar clínicas odontológicas, com recursos para cadastro de dentistas, clínicas e feedbacks. Foi implementado um ambiente DevOps com CI/CD utilizando **Azure DevOps** e deploy em **na nuvem**. O banco de dados é **Oracle**, também hospedado em container Docker.
-
-
 [:arrow_up: voltar para o índice :arrow_up:](#-índice)
 ## 🧑‍🤝‍🧑 Equipe
 
